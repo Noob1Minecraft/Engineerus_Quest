@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineerus Quest — Приложение</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --bg: #0F172A;
+            --bg-light: #1E293B;
+            --surface: #334155;
+            --text: #F8FAFC;
+            --text-muted: #94A3B8;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --gold: #FFD700;
+            --radius: 12px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.6;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+        .animate-pulse { animation: pulse 2s infinite; }
+        
+        nav {
+            background: var(--bg-light);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border-bottom: 2px solid var(--primary);
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        nav a:hover { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+        
+        .lang-selector {
+            background: var(--surface);
+            color: var(--text);
+            border: 2px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .lang-selector:hover {
+            border-color: var(--warning);
+            transform: translateY(-2px);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--surface) 100%);
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            border: 2px solid var(--primary);
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        .hero p { font-size: 1.25rem; color: var(--text-muted); }
+        .hero .tagline { margin-top: 1rem; color: var(--warning); font-weight: 600; }
+        
+        .card {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--surface);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-box {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--warning);
+            display: block;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .xp-bar-container {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .xp-bar {
+            height: 24px;
+            background: linear-gradient(90deg, var(--success), var(--primary));
+            border-radius: 16px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--surface);
+            border: 2px solid var(--surface);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+            color: var(--text-muted);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--surface);
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+        
+        .quest-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+        .quest-card.completed { border-left-color: var(--success); opacity: 0.7; }
+        .quest-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .quest-name { font-size: 1.25rem; font-weight: 700; }
+        .quest-xp {
+            background: var(--warning);
+            color: var(--bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--surface);
+            background: var(--bg-light);
+        }
+        .leaderboard-item:hover { background: var(--surface); }
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 800;
+            width: 60px;
+            text-align: center;
+        }
+        .rank-1 { color: var(--gold); }
+        .rank-2 { color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; }
+        .user-info { flex: 1; }
+        .user-name { font-weight: 600; font-size: 1.1rem; }
+        .user-level { color: var(--text-muted); font-size: 0.875rem; }
+        .user-xp {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--warning);
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .achievement {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        .achievement.earned {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        .achievement.locked { opacity: 0.4; }
+        
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .onboarding-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .onboarding-modal {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.3);
+            animation: modalSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .onboarding-robot {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .onboarding-step-counter {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .onboarding-title {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .onboarding-text {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .onboarding-progress {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .onboarding-dot {
+            width: 40px;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .onboarding-dot.active {
+            background: linear-gradient(90deg, var(--primary), var(--warning));
+            width: 60px;
+        }
+
+        .onboarding-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .onboarding-btn {
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .onboarding-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .onboarding-btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .onboarding-btn-secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 2px solid var(--surface);
+        }
+
+        .onboarding-btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--text);
+        }
+
+        .onboarding-skip {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .onboarding-skip:hover {
+            color: var(--error);
+            transform: scale(1.2);
+        }
+
+        .onboarding-feature-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .slide-enter {
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .onboarding-modal {
+                padding: 2rem 1.5rem;
+            }
+            .onboarding-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ONBOARDING TOUR -->
+    <div class="onboarding-overlay" id="onboardingOverlay" style="display: none;">
+        <div class="onboarding-modal">
+            <button class="onboarding-skip" onclick="closeOnboarding()" title="Пропустить">×</button>
+            
+            <svg class="onboarding-robot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <rect x="30" y="20" width="60" height="50" rx="10" fill="#2563EB"/>
+                <line x1="60" y1="20" x2="60" y2="10" stroke="#F59E0B" stroke-width="3"/>
+                <circle cx="60" cy="8" r="4" fill="#F59E0B"/>
+                <circle cx="45" cy="40" r="6" fill="#10B981"/>
+                <circle cx="75" cy="40" r="6" fill="#10B981"/>
+                <circle cx="45" cy="40" r="3" fill="#0F172A"/>
+                <circle cx="75" cy="40" r="3" fill="#0F172A"/>
+                <path d="M 45 55 Q 60 65 75 55" stroke="#F59E0B" stroke-width="3" fill="none"/>
+                <rect x="35" y="70" width="50" height="35" rx="5" fill="#1E293B"/>
+                <rect x="20" y="75" width="15" height="25" rx="5" fill="#334155"/>
+                <rect x="85" y="75" width="15" height="25" rx="5" fill="#334155"/>
+                <circle cx="50" cy="85" r="3" fill="#F59E0B"/>
+                <circle cx="70" cy="85" r="3" fill="#10B981"/>
+            </svg>
+
+            <div class="onboarding-step-counter" id="onboardingStepCounter">Шаг 1 из 5</div>
+            
+            <h2 class="onboarding-title" id="onboardingTitle">Добро пожаловать!</h2>
+            
+            <div class="onboarding-feature-icon" id="onboardingFeatureIcon"></div>
+            
+            <p class="onboarding-text" id="onboardingText">
+                Engineerus Quest — твой персональный ИИ-помощник для изучения инженерии!
+            </p>
+            
+            <div class="onboarding-progress" id="onboardingProgress"></div>
+            
+            <div class="onboarding-buttons">
+                <button class="onboarding-btn onboarding-btn-secondary" onclick="prevStep()" id="prevBtn" style="display: none;">← Назад</button>
+                <button class="onboarding-btn onboarding-btn-primary" onclick="nextStep()" id="nextBtn">Далее →</button>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <ul>
+            <li><a href="#home" data-i18n="nav_home">Главная</a></li>
+            <li><a href="#profile" data-i18n="nav_profile">Профиль</a></li>
+            <li><a href="#quests" data-i18n="nav_quests">Квесты</a></li>
+            <li><a href="#leaderboard" data-i18n="nav_leaderboard">Лидеры</a></li>
+            <li><a href="#achievements" data-i18n="nav_achievements">Ачивки</a></li>
+            <li><a href="#ai" data-i18n="nav_ai">ИИ-помощник</a></li>
+            <li>
+                <select id="langSelector" class="lang-selector" onchange="setLanguage(this.value)">
+                    <option value="ru">🇷🇺 RU</option>
+                    <option value="kk">🇰🇿 KZ</option>
+                    <option value="en">🇬🇧 EN</option>
+                </select>
+            </li>
+            <li><a href="index.html" style="background: var(--error); padding: 0.5rem 1rem; border-radius: 8px;" data-i18n="logout">Выйти</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="home">
+            <div class="hero">
+                <h1>Engineerus Quest</h1>
+                <p data-i18n="hero_subtitle">Геймифицированная платформа для студентов-инженеров</p>
+                <p class="tagline" data-i18n="hero_tagline">Выполняй квесты • Получай XP • Поднимайся в рейтинге</p>
+            </div>
+        </section>
+
+        <section id="profile">
+            <h2 style="margin-bottom: 1.5rem;" data-i18n="profile_title">Твой профиль</h2>
+            <div class="card">
+                <div id="profile-section">
+                    <div class="stats-grid">
+                        <div class="stat-box animate-fade-in">
+                            <span class="stat-value" id="xp-val">0</span>
+                            <span class="stat-label">XP</span>
+                        </div>
+                        <div class="stat-box animate-fade-in" style="animation-delay: 0.1s;">
+                            <span class="stat-value" id="level-val">1</span>
+                            <span class="stat-label" data-i18n="stat_level">Уровень</span>
+                        </div>
+                        <div class="stat-box animate-fade-in" style="animation-delay: 0.2s;">
+                            <span class="stat-value" id="streak-val">0</span>
+                            <span class="stat-label" data-i18n="stat_streak">Стрик</span>
+                        </div>
+                        <div class="stat-box animate-fade-in" style="animation-delay: 0.3s;">
+                            <span class="stat-value" id="quests-val">0</span>
+                            <span class="stat-label" data-i18n="stat_quests">Квестов</span>
+                        </div>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar" id="xp-bar" style="width: 0%;">0 / 100 XP</div>
+                    </div>
+                    <p style="text-align: center; margin-top: 1rem; color: var(--text-muted);">
+                        <span data-i18n="xp_to_next">До следующего уровня:</span> <span id="xp-to-next">100</span> XP
+                    </p>
+                    <button onclick="logout()" style="margin-top: 1rem; background: var(--error);" data-i18n="logout">Выйти</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('quests', this)" data-i18n="tab_quests">Квесты</button>
+            <button class="tab" onclick="switchTab('leaderboard', this)" data-i18n="tab_leaderboard">Лидеры</button>
+            <button class="tab" onclick="switchTab('achievements', this)" data-i18n="tab_achievements">Ачивки</button>
+            <button class="tab" onclick="switchTab('ai', this)" data-i18n="tab_ai">ИИ-помощник</button>
+        </div>
+
+        <div id="quests-tab" class="tab-content active">
+            <h2 style="margin-bottom: 1.5rem;" data-i18n="quests_title">Активные квесты</h2>
+            <div id="quests-list"></div>
+        </div>
+
+        <div id="leaderboard-tab" class="tab-content">
+            <h2 style="margin-bottom: 1.5rem;" data-i18n="leaderboard_title">Таблица лидеров</h2>
+            <div id="leaderboard-list"></div>
+        </div>
+
+        <div id="achievements-tab" class="tab-content">
+            <h2 style="margin-bottom: 1.5rem;" data-i18n="achievements_title">Твои достижения</h2>
+            <div class="achievements-grid" id="achievements-list"></div>
+        </div>
+
+        <div id="ai-tab" class="tab-content">
+            <h2 style="margin-bottom: 1.5rem;" data-i18n="ai_title">ИИ-помощник</h2>
+            <div class="card">
+                <label data-i18n="ai_module">Модуль:</label>
+                <select id="module">
+                    <option value="tutor"> TUTOR AI (Репетитор)</option>
+                    <option value="material"> MaterialSwap (Материалы)</option>
+                    <option value="patent"> PatentCraft (Патенты)</option>
+                    <option value="legal"> EngiLegal (Документы)</option>
+                    <option value="match"> EngiMatch (Команда)</option>
+                </select>
+                <label data-i18n="ai_question">Вопрос / Задача:</label>
+                <textarea id="question" rows="4" data-i18n-placeholder="ai_placeholder" placeholder="Например: объясни закон Ома простыми словами..."></textarea>
+                <button onclick="sendQuery()" style="margin-top: 1rem; width: 100%;" data-i18n="ai_send">Отправить запрос</button>
+                <div id="ai-response" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: var(--surface); border-radius: var(--radius);"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api';
+        let currentUser = null;
+        
+        const translations = {
+            ru: {
+                nav_home: "Главная", nav_profile: "Профиль", nav_quests: "Квесты",
+                nav_leaderboard: "Лидеры", nav_achievements: "Ачивки", nav_ai: "ИИ-помощник",
+                logout: "Выйти",
+                hero_subtitle: "Геймифицированная платформа для студентов-инженеров",
+                hero_tagline: "Выполняй квесты • Получай XP • Поднимайся в рейтинге",
+                profile_title: "Твой профиль", stat_level: "Уровень", stat_streak: "Стрик", stat_quests: "Квестов",
+                xp_to_next: "До следующего уровня:",
+                tab_quests: "Квесты", tab_leaderboard: "Лидеры", tab_achievements: "Ачивки", tab_ai: "ИИ-помощник",
+                quests_title: "Активные квесты", leaderboard_title: "Таблица лидеров", achievements_title: "Твои достижения",
+                ai_title: "ИИ-помощник", ai_module: "Модуль:", ai_question: "Вопрос / Задача:",
+                ai_placeholder: "Например: объясни закон Ома простыми словами...", ai_send: "Отправить запрос",
+                quest_completed: " Выполнено", quest_check: "Проверить выполнение", quest_reward: "Награда:",
+                leaderboard_empty: "Пока нет участников", leaderboard_level: "Уровень", leaderboard_days: "дн.",
+                achievement_earned: "Получено", achievement_locked: "Заблокировано",
+                ai_loading: "Загрузка...", ai_success: " +XP | Уровень:", ai_new_achievements: "🎉 Новые ачивки:",
+                error_login: "Сначала войди в систему", error_question: "Введи вопрос"
+            },
+            kk: {
+                nav_home: "Басты бет", nav_profile: "Профиль", nav_quests: "Квесттер",
+                nav_leaderboard: "Көшбасшылар", nav_achievements: "Жетістіктер", nav_ai: "ЖИ көмекші",
+                logout: "Шығу",
+                hero_subtitle: "Инженер студенттерге арналған геймификацияланған платформа",
+                hero_tagline: "Квесттерді орында • XP ал • Рейтингте көтеріл",
+                profile_title: "Сенің профилің", stat_level: "Деңгей", stat_streak: "Стрик", stat_quests: "Квесттер",
+                xp_to_next: "Келесі деңгейге дейін:",
+                tab_quests: "Квесттер", tab_leaderboard: "Көшбасшылар", tab_achievements: "Жетістіктер", tab_ai: "ЖИ көмекші",
+                quests_title: "Белсенді квесттер", leaderboard_title: "Көшбасшылар кестесі", achievements_title: "Сенің жетістіктерің",
+                ai_title: "ЖИ көмекші", ai_module: "Модуль:", ai_question: "Сұрақ / Тапсырма:",
+                ai_placeholder: "Мысалы: Ом заңын қарапайым тілмен түсіндір...", ai_send: "Сұрау жіберу",
+                quest_completed: " Орындалды", quest_check: "Орындалуын тексеру", quest_reward: "Сыйлық:",
+                leaderboard_empty: "Әзірге қатысушылар жоқ", leaderboard_level: "Деңгей", leaderboard_days: "күн",
+                achievement_earned: "Алынды", achievement_locked: "Бұғатталған",
+                ai_loading: "Жүктелуде...", ai_success: " +XP | Деңгей:", ai_new_achievements: "🎉 Жаңа жетістіктер:",
+                error_login: "Алдымен жүйеге кір", error_question: "Сұрақ енгіз"
+            },
+            en: {
+                nav_home: "Home", nav_profile: "Profile", nav_quests: "Quests",
+                nav_leaderboard: "Leaders", nav_achievements: "Achievements", nav_ai: "AI Assistant",
+                logout: "Logout",
+                hero_subtitle: "Gamified platform for engineering students",
+                hero_tagline: "Complete quests • Earn XP • Climb the leaderboard",
+                profile_title: "Your profile", stat_level: "Level", stat_streak: "Streak", stat_quests: "Quests",
+                xp_to_next: "To next level:",
+                tab_quests: "Quests", tab_leaderboard: "Leaders", tab_achievements: "Achievements", tab_ai: "AI Assistant",
+                quests_title: "Active quests", leaderboard_title: "Leaderboard", achievements_title: "Your achievements",
+                ai_title: "AI Assistant", ai_module: "Module:", ai_question: "Question / Task:",
+                ai_placeholder: "For example: explain Ohm's law in simple words...", ai_send: "Send request",
+                quest_completed: " Completed", quest_check: "Check completion", quest_reward: "Reward:",
+                leaderboard_empty: "No participants yet", leaderboard_level: "Level", leaderboard_days: "days",
+                achievement_earned: "Earned", achievement_locked: "Locked",
+                ai_loading: "Loading...", ai_success: " +XP | Level:", ai_new_achievements: "🎉 New achievements:",
+                error_login: "Please login first", error_question: "Enter question"
+            }
+        };
+        
+        let currentLang = localStorage.getItem('lang') || 'ru';
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            document.getElementById('langSelector').value = lang;
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+            
+            if (currentUser) {
+                loadQuests();
+                loadLeaderboard();
+                loadAchievements();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem('user_email');
+            const savedTgId = localStorage.getItem('user_tg_id');
+            const savedUsername = localStorage.getItem('username');
+            
+            if (!savedEmail || !savedTgId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = {
+                tg_id: parseInt(savedTgId),
+                username: savedUsername,
+                email: savedEmail
+            };
+            
+            setLanguage(currentLang);
+            
+            updateProfile();
+            loadQuests();
+            loadLeaderboard();
+            loadAchievements();
+            
+            // Запускаем onboarding автоматически
+            initOnboarding();
+        });
+
+        // === ONBOARDING TOUR ===
+        const onboardingSteps = [
+            {
+                icon: "",
+                title: "Привет, инженер!",
+                text: "Я твой ИИ-помощник. Сейчас покажу, как устроена платформа и как ты можешь прокачать свои навыки!"
+            },
+            {
+                icon: "",
+                title: "ИИ-помощник 24/7",
+                text: "Задавай любые вопросы по инженерии — от термодинамики до патентов. ИИ работает локально, бесплатно и быстро!"
+            },
+            {
+                icon: "",
+                title: "Учись играя",
+                text: "За каждый вопрос и квест ты получаешь XP и уровни. Собирай ачивки и соревнуйся с друзьями в таблице лидеров!"
+            },
+            {
+                icon: "",
+                title: "Не теряй стрик",
+                text: "Заходи каждый день, чтобы поддерживать серию активности. Стрик мотивирует учиться регулярно!"
+            },
+            {
+                icon: "",
+                title: "Поехали!",
+                text: "Готов прокачать свои инженерные навыки? Начни с первого квеста или задай вопрос ИИ прямо сейчас!"
+            }
+        ];
+
+        let currentOnboardingStep = 0;
+
+        function initOnboarding() {
+            console.log(' Запускаю onboarding автоматически...');
+            
+            // ВСЕГДА показываем onboarding при загрузке
+            setTimeout(() => {
+                const overlay = document.getElementById('onboardingOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    renderOnboardingStep();
+                    console.log(' Onboarding показан!');
+                }
+            }, 1000);
+        }
+
+        function renderOnboardingStep() {
+            const step = onboardingSteps[currentOnboardingStep];
+            
+            document.getElementById('onboardingStepCounter').textContent = 
+                `Шаг ${currentOnboardingStep + 1} из ${onboardingSteps.length}`;
+            document.getElementById('onboardingTitle').textContent = step.title;
+            document.getElementById('onboardingFeatureIcon').textContent = step.icon;
+            document.getElementById('onboardingText').textContent = step.text;
+            
+            const progressContainer = document.getElementById('onboardingProgress');
+            progressContainer.innerHTML = onboardingSteps.map((_, i) => 
+                `<div class="onboarding-dot ${i === currentOnboardingStep ? 'active' : ''}"></div>`
+            ).join('');
+            
+            document.getElementById('prevBtn').style.display = currentOnboardingStep === 0 ? 'none' : 'inline-block';
+            document.getElementById('nextBtn').textContent = 
+                currentOnboardingStep === onboardingSteps.length - 1 ? 'Начать! 🎉' : 'Далее →';
+            
+            const modal = document.querySelector('.onboarding-modal');
+            modal.classList.add('slide-enter');
+            setTimeout(() => {
+                modal.classList.remove('slide-enter');
+            }, 400);
+        }
+
+        function nextStep() {
+            if (currentOnboardingStep < onboardingSteps.length - 1) {
+                currentOnboardingStep++;
+                renderOnboardingStep();
+            } else {
+                closeOnboarding();
+            }
+        }
+
+        function prevStep() {
+            if (currentOnboardingStep > 0) {
+                currentOnboardingStep--;
+                renderOnboardingStep();
+            }
+        }
+
+        function closeOnboarding() {
+            const overlay = document.getElementById('onboardingOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.4s';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.style.opacity = '1';
+                console.log(' Onboarding закрыт');
+            }, 400);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        async function updateProfile() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch(`${API}/user/${currentUser.tg_id}`);
+                const user = await res.json();
+                
+                document.getElementById('xp-val').textContent = user.xp;
+                document.getElementById('level-val').textContent = user.level;
+                document.getElementById('streak-val').textContent = user.streak;
+                
+                const xpInLevel = user.xp % 100;
+                const progress = (xpInLevel / 100) * 100;
+                document.getElementById('xp-bar').style.width = progress + '%';
+                document.getElementById('xp-bar').textContent = `${xpInLevel} / 100 XP`;
+                document.getElementById('xp-to-next').textContent = 100 - xpInLevel;
+                
+                const questsRes = await fetch(`${API}/quests/completed/${currentUser.tg_id}`);
+                const questsData = await questsRes.json();
+                document.getElementById('quests-val').textContent = questsData.completed.length;
+            } catch (e) {
+                console.error('Ошибка профиля:', e);
+            }
+        }
+
+        async function loadQuests() {
+            if (!currentUser) return;
+            try {
+                const [questsRes, completedRes] = await Promise.all([
+                    fetch(`${API}/quests`),
+                    fetch(`${API}/quests/completed/${currentUser.tg_id}`)
+                ]);
+                const quests = await questsRes.json();
+                const completed = await completedRes.json();
+                
+                const list = document.getElementById('quests-list');
+                list.innerHTML = '';
+                
+                for (const quest of Object.values(quests.quests)) {
+                    const isCompleted = completed.completed.includes(quest.id);
+                    const card = document.createElement('div');
+                    card.className = 'quest-card' + (isCompleted ? ' completed' : '');
+                    card.innerHTML = `
+                        <div class="quest-header">
+                            <span class="quest-name">${quest.name}</span>
+                            <span class="quest-xp">+${quest.xp} XP</span>
+                        </div>
+                        <div style="color: var(--text-muted); margin-bottom: 0.5rem;">${quest.desc}</div>
+                        <div style="background: var(--bg-light); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; display: inline-block;">
+                            ${translations[currentLang].quest_reward} ${quest.reward}
+                        </div>
+                        ${!isCompleted 
+                            ? `<button onclick="completeQuest('${quest.id}')" style="margin-top: 1rem; width: 100%;">${translations[currentLang].quest_check}</button>` 
+                            : `<p style="margin-top: 1rem; color: var(--success); font-weight: 600;">${translations[currentLang].quest_completed}</p>`}
+                    `;
+                    list.appendChild(card);
+                }
+            } catch (e) {
+                console.error('Ошибка квестов:', e);
+            }
+        }
+
+        async function completeQuest(questId) {
+            if (!currentUser) return;
+            try {
+                const res = await fetch(`${API}/quests/complete`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({telegram_id: currentUser.tg_id, quest_id: questId})
+                });
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    showNotification(data.message);
+                    updateProfile();
+                    loadQuests();
+                    loadAchievements();
+                } else {
+                    alert(data.message);
+                }
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const res = await fetch(`${API}/leaderboard`);
+                const data = await res.json();
+                const list = document.getElementById('leaderboard-list');
+                list.innerHTML = '';
+                
+                if (data.leaderboard.length === 0) {
+                    list.innerHTML = `<p style="padding: 2rem; text-align: center; color: var(--text-muted);">${translations[currentLang].leaderboard_empty}</p>`;
+                    return;
+                }
+                
+                data.leaderboard.forEach((user, idx) => {
+                    const rank = idx + 1;
+                    const medal = rank === 1 ? '' : rank === 2 ? '' : rank === 3 ? '' : `#${rank}`;
+                    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                    const item = document.createElement('div');
+                    item.className = 'leaderboard-item animate-fade-in';
+                    item.style.animationDelay = `${idx * 0.1}s`;
+                    item.innerHTML = `
+                        <div class="rank ${rankClass}">${medal}</div>
+                        <div class="user-info">
+                            <div class="user-name">${user.username}</div>
+                            <div class="user-level">${translations[currentLang].leaderboard_level} ${user.level} | 🔥 ${user.streak} ${translations[currentLang].leaderboard_days}</div>
+                        </div>
+                        <div class="user-xp">${user.xp} XP</div>
+                    `;
+                    list.appendChild(item);
+                });
+            } catch (e) {
+                console.error('Ошибка лидерборда:', e);
+            }
+        }
+
+        async function loadAchievements() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch(`${API}/achievements/${currentUser.tg_id}`);
+                const data = await res.json();
+                const list = document.getElementById('achievements-list');
+                list.innerHTML = '';
+                
+                const allAchievements = {
+                    "first_step": {"name": "Первый шаг", "desc": "Первый запрос к ИИ"},
+                    "material_master": {"name": "Материаловед", "desc": "5 подборов в MaterialSwap"},
+                    "patent_crafter": {"name": "Патентный чертёжник", "desc": "1 заявка в PatentCraft"},
+                    "streak_3": {"name": "3 дня в строю", "desc": "Активность 3 дня подряд"},
+                    "streak_7": {"name": "Неделя в строю", "desc": "Активность 7 дней подряд"},
+                    "xp_100": {"name": "Сотня", "desc": "Достиг 100 XP"},
+                    "all_modules": {"name": "Инженер-универсал", "desc": "Использовал все модули"}
+                };
+                
+                const earnedCodes = data.achievements.map(a => a.code);
+                
+                for (const [code, ach] of Object.entries(allAchievements)) {
+                    const earned = earnedCodes.includes(code);
+                    const div = document.createElement('div');
+                    div.className = 'achievement' + (earned ? ' earned' : ' locked');
+                    div.innerHTML = `
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">${ach.name.charAt(0)}</div>
+                        <div style="font-weight: 700; margin-bottom: 0.25rem;">${ach.name}</div>
+                        <div style="color: var(--text-muted); font-size: 0.875rem;">${ach.desc}</div>
+                        ${earned 
+                            ? `<p style="color: var(--success); margin-top: 0.5rem; font-weight: 600;">${translations[currentLang].achievement_earned}</p>` 
+                            : `<p style="color: var(--text-muted); margin-top: 0.5rem;">${translations[currentLang].achievement_locked}</p>`}
+                    `;
+                    list.appendChild(div);
+                }
+            } catch (e) {
+                console.error('Ошибка ачивок:', e);
+            }
+        }
+
+        async function sendQuery() {
+            if (!currentUser) return alert(translations[currentLang].error_login);
+            
+            const module = document.getElementById('module').value;
+            const question = document.getElementById('question').value.trim();
+            if (!question) return alert(translations[currentLang].error_question);
+            
+            const responseDiv = document.getElementById('ai-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = `<p class="animate-pulse">${translations[currentLang].ai_loading}</p>`;
+            
+            try {
+                const endpoint = module === 'tutor' ? `${API}/ai` : `${API}/module`;
+                const payload = module === 'tutor' 
+                    ? {telegram_id: currentUser.tg_id, username: currentUser.username, text: question, lang: currentLang}
+                    : {telegram_id: currentUser.tg_id, username: currentUser.username, module: module, text: question, lang: currentLang};
+                
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if (data.status === 'limit') {
+                    responseDiv.innerHTML = `<p style="color: var(--error);">${data.message}</p>`;
+                } else {
+                    let html = `<div style="white-space: pre-wrap; margin-bottom: 1rem;">${data.response}</div>`;
+                    html += `<p style="color: var(--success); font-weight: 600;">${translations[currentLang].ai_success} ${data.level}</p>`;
+                    if (data.new_achievements && data.new_achievements.length > 0) {
+                        html += '<div style="margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: 8px;">';
+                        html += `<p style="font-weight: 700; margin-bottom: 0.5rem;">${translations[currentLang].ai_new_achievements}</p>`;
+                        data.new_achievements.forEach(ach => {
+                            html += `<p>• ${ach.name} (+${ach.xp} XP)</p>`;
+                        });
+                        html += '</div>';
+                    }
+                    responseDiv.innerHTML = html;
+                    updateProfile();
+                    loadAchievements();
+                }
+            } catch (e) {
+                responseDiv.innerHTML = `<p style="color: var(--error);">Ошибка: ${e.message}</p>`;
+            }
+        }
+
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        function showNotification(text) {
+            const notif = document.createElement('div');
+            notif.className = 'notification animate-slide-in';
+            notif.textContent = text;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

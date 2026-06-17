@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineerus Quest — Геймифицированная платформа для студентов-инженеров</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --bg: #0F172A;
+            --bg-light: #1E293B;
+            --surface: #334155;
+            --text: #F8FAFC;
+            --text-muted: #94A3B8;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --gold: #FFD700;
+            --radius: 12px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+        
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        
+        /* === SPLASH SCREEN === */
+        .splash-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg-light) 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .splash-screen.hidden { opacity: 0; visibility: hidden; }
+        .splash-logo {
+            width: 150px; height: 150px;
+            margin-bottom: 2rem;
+            animation: float 2s ease-in-out infinite;
+        }
+        .splash-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        .splash-subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+        .splash-progress {
+            width: 300px; max-width: 80%;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .splash-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--warning));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .splash-loader { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+        .splash-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+        .splash-dot:nth-child(1) { animation-delay: 0s; }
+        .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+        .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        /* === НАВИГАЦИЯ === */
+        nav {
+            background: var(--bg-light);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border-bottom: 2px solid var(--primary);
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        nav a:hover { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        
+        /* === HERO === */
+        .hero {
+            text-align: center;
+            padding: 6rem 1rem;
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--surface) 100%);
+            border-radius: var(--radius);
+            margin: 2rem 1rem;
+            border: 2px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .hero p { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 2rem; position: relative; z-index: 1; }
+        .hero-cta {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-cta:hover {
+            background: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+        }
+        
+        /* === СЕКЦИИ === */
+        .section { padding: 4rem 1rem; margin: 2rem 0; }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* === ПРОБЛЕМА === */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .problem-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--error);
+            transition: all 0.3s;
+        }
+        .problem-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .problem-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .problem-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .problem-card p { color: var(--text-muted); }
+        
+        /* === ПРЕИМУЩЕСТВА === */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .feature-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 2px solid var(--surface);
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        }
+        .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .feature-card h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--primary); }
+        .feature-card p { color: var(--text-muted); }
+        
+        /* === ОТЗЫВЫ === */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .testimonial-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--success);
+            position: relative;
+        }
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: -10px; left: 20px;
+            font-size: 4rem;
+            color: var(--success);
+            opacity: 0.3;
+        }
+        .testimonial-text { font-style: italic; color: var(--text-muted); margin-bottom: 1rem; }
+        .testimonial-author { display: flex; align-items: center; gap: 1rem; }
+        .testimonial-avatar {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .testimonial-name { font-weight: 600; }
+        .testimonial-role { font-size: 0.875rem; color: var(--text-muted); }
+        
+        /* === ЦЕНЫ === */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .pricing-card {
+            background: var(--bg-light);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            border: 2px solid var(--surface);
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .pricing-card.popular {
+            border-color: var(--warning);
+            transform: scale(1.05);
+        }
+        .pricing-card.popular::before {
+            content: 'ПОПУЛЯРНЫЙ';
+            position: absolute;
+            top: -15px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--warning);
+            color: var(--bg);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .pricing-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary); }
+        .pricing-price { font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .pricing-period { color: var(--text-muted); margin-bottom: 2rem; }
+        .pricing-features { list-style: none; margin-bottom: 2rem; text-align: left; }
+        .pricing-features li { padding: 0.5rem 0; border-bottom: 1px solid var(--surface); }
+        .pricing-features li::before { content: '✓'; color: var(--success); font-weight: 700; margin-right: 0.5rem; }
+        .pricing-btn {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .pricing-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        
+        /* === ФОРМА === */
+        .cta-section {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--surface) 100%);
+            padding: 4rem 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 2px solid var(--primary);
+            margin: 4rem 1rem;
+        }
+        .cta-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+        .cta-text { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 2rem; }
+        .cta-form { max-width: 500px; margin: 0 auto; }
+        .cta-form input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface);
+            border: 2px solid var(--surface);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .cta-form input:focus { outline: none; border-color: var(--primary); }
+        .cta-form button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cta-form button:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        
+        /* === КОНТАКТЫ === */
+        .contacts { text-align: center; padding: 4rem 1rem; }
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .contact-item {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            transition: all 0.3s;
+        }
+        .contact-item:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .contact-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .contact-item a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .contact-item a:hover { color: var(--warning); }
+        
+        footer {
+            background: var(--bg-light);
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid var(--primary);
+            margin-top: 4rem;
+        }
+        footer p { color: var(--text-muted); }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .section-title { font-size: 2rem; }
+            .pricing-card.popular { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- SPLASH SCREEN -->
+    <div class="splash-screen" id="splashScreen">
+        <svg class="splash-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="20" width="60" height="50" rx="10" fill="#2563EB"/>
+            <line x1="60" y1="20" x2="60" y2="10" stroke="#F59E0B" stroke-width="3"/>
+            <circle cx="60" cy="8" r="4" fill="#F59E0B"/>
+            <circle cx="45" cy="40" r="6" fill="#10B981"/>
+            <circle cx="75" cy="40" r="6" fill="#10B981"/>
+            <circle cx="45" cy="40" r="3" fill="#0F172A"/>
+            <circle cx="75" cy="40" r="3" fill="#0F172A"/>
+            <path d="M 45 55 Q 60 65 75 55" stroke="#F59E0B" stroke-width="3" fill="none"/>
+            <rect x="35" y="70" width="50" height="35" rx="5" fill="#1E293B"/>
+            <rect x="20" y="75" width="15" height="25" rx="5" fill="#334155"/>
+            <rect x="85" y="75" width="15" height="25" rx="5" fill="#334155"/>
+            <circle cx="50" cy="85" r="3" fill="#F59E0B"/>
+            <circle cx="70" cy="85" r="3" fill="#10B981"/>
+        </svg>
+        <h1 class="splash-title">Engineerus Quest</h1>
+        <p class="splash-subtitle">Загрузка платформы...</p>
+        <div class="splash-progress">
+            <div class="splash-progress-bar" id="splashProgress"></div>
+        </div>
+        <div class="splash-loader">
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+        </div>
+    </div>
+
+    <!-- НАВИГАЦИЯ -->
+    <nav>
+        <ul>
+            <li><a href="#hero">Главная</a></li>
+            <li><a href="#problem">Проблема</a></li>
+            <li><a href="#features">Преимущества</a></li>
+            <li><a href="#testimonials">Отзывы</a></li>
+            <li><a href="#pricing">Цены</a></li>
+            <li><a href="#cta">Начать</a></li>
+            <li><a href="#contacts">Контакты</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <h1>Engineerus Quest</h1>
+        <p>Геймифицированная платформа для студентов-инженеров с локальным ИИ</p>
+        <a href="#cta" class="hero-cta">Начать бесплатно →</a>
+    </section>
+
+    <!-- ПРОБЛЕМА -->
+    <section class="section" id="problem">
+        <div class="container">
+            <h2 class="section-title">Проблема</h2>
+            <div class="problem-grid">
+                <div class="problem-card animate-fade-in">
+                    <div class="problem-icon"></div>
+                    <h3>Низкая мотивация</h3>
+                    <p>Студенты теряют интерес к сложным инженерным предметам из-за скучных лекций и отсутствия интерактива</p>
+                </div>
+                <div class="problem-card animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="problem-icon"></div>
+                    <h3>Дорогие ИИ-сервисы</h3>
+                    <p>Платные API (ChatGPT, Claude) стоят дорого и требуют постоянного пополнения баланса</p>
+                </div>
+                <div class="problem-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="problem-icon"></div>
+                    <h3>Приватность данных</h3>
+                    <p>Облачные ИИ-сервисы хранят ваши данные на серверах, что неприемлемо для исследовательских работ</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ПРЕИМУЩЕСТВА -->
+    <section class="section" id="features">
+        <div class="container">
+            <h2 class="section-title">Наши преимущества</h2>
+            <div class="features-grid">
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon"></div>
+                    <h3>Геймификация</h3>
+                    <p>Квесты, XP, уровни, ачивки и лидерборд мотивируют учиться каждый день</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="feature-icon"></div>
+                    <h3>Локальный ИИ</h3>
+                    <p>Ollama работает на вашем компьютере — бесплатно, без интернета, без лимитов</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="feature-icon"></div>
+                    <h3>3 языка</h3>
+                    <p>Интерфейс на русском, в перспективе казахском и английском языках</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.3s;">
+                    <div class="feature-icon"></div>
+                    <h3>5 модулей</h3>
+                    <p>TUTOR AI, MaterialSwap, PatentCraft, EngiLegal, EngiMatch — всё для инженеров</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.4s;">
+                    <div class="feature-icon"></div>
+                    <h3>Приватность</h3>
+                    <p>Все данные хранятся локально, ничего не уходит в облако</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.5s;">
+                    <div class="feature-icon"></div>
+                    <h3>Telegram бот</h3>
+                    <p>Полный доступ к платформе через Telegram — удобно и быстро</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ОТЗЫВЫ -->
+    <section class="section" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">Отзывы студентов</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card animate-fade-in">
+                    <p class="testimonial-text">Engineerus Quest реально помог мне подготовиться к экзамену по термодинамике. ИИ-помощник объясняет сложные темы простыми словами!</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">А</div>
+                        <div>
+                            <div class="testimonial-name">Айбек К.</div>
+                            <div class="testimonial-role">Студент 3 курса, Механика</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-fade-in" style="animation-delay: 0.1s;">
+                    <p class="testimonial-text">Наконец-то платформа, где можно учиться и соревноваться с друзьями. Таблица лидеров мотивирует возвращаться каждый день!</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">М</div>
+                        <div>
+                            <div class="testimonial-name">Мария С.</div>
+                            <div class="testimonial-role">Студентка 2 курса, Электротехника</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <p class="testimonial-text">Круто, что ИИ работает локально — не нужно платить за API. И ответы приходят быстро, даже на казахском!</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">Д</div>
+                        <div>
+                            <div class="testimonial-name">Дамир Т.</div>
+                            <div class="testimonial-role">Студент 4 курса, Материаловедение</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ЦЕНЫ -->
+    <section class="section" id="pricing">
+        <div class="container">
+            <h2 class="section-title">Тарифы</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card animate-fade-in">
+                    <div class="pricing-name">Бесплатный</div>
+                    <div class="pricing-price">$0</div>
+                    <div class="pricing-period">навсегда</div>
+                    <ul class="pricing-features">
+                        <li>10 запросов к ИИ в день</li>
+                        <li>Доступ ко всем модулям</li>
+                        <li>Система квестов и ачивок</li>
+                        <li>Таблица лидеров</li>
+                        <li>Локальный ИИ</li>
+                    </ul>
+                    <a href="#cta" class="pricing-btn">Начать бесплатно</a>
+                </div>
+                <div class="pricing-card popular animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="pricing-name">Premium</div>
+                    <div class="pricing-price">$5</div>
+                    <div class="pricing-period">в месяц</div>
+                    <ul class="pricing-features">
+                        <li>Безлимитные запросы к ИИ</li>
+                        <li>Все функции Free</li>
+                        <li>Приоритетная поддержка</li>
+                        <li>Расширенная статистика</li>
+                        <li>Эксклюзивные квесты</li>
+                        <li>Ранний доступ к фичам</li>
+                    </ul>
+                    <a href="#cta" class="pricing-btn">Выбрать Premium</a>
+                </div>
+                <div class="pricing-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="pricing-name">Университет</div>
+                    <div class="pricing-price">$50</div>
+                    <div class="pricing-period">в месяц</div>
+                    <ul class="pricing-features">
+                        <li>До 100 студентов</li>
+                        <li>Все функции Premium</li>
+                        <li>Админ-панель</li>
+                        <li>Кастомные квесты</li>
+                        <li>Аналитика успеваемости</li>
+                        <li>Техподдержка 24/7</li>
+                    </ul>
+                    <a href="#cta" class="pricing-btn">Связаться с нами</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA ФОРМА -->
+    <section class="cta-section" id="cta">
+        <h2 class="cta-title">Готов начать?</h2>
+        <p class="cta-text">Присоединяйся к Engineerus Quest и прокачай свои инженерные навыки!</p>
+        <form class="cta-form" onsubmit="handleSubmit(event)">
+            <input type="email" id="regEmail" placeholder="Твой email" required>
+            <input type="text" id="regUsername" placeholder="Имя пользователя" required>
+            <button type="submit">Начать бесплатно →</button>
+        </form>
+    </section>
+
+    <!-- КОНТАКТЫ -->
+    <section class="contacts" id="contacts">
+        <div class="container">
+            <h2 class="section-title">Контакты</h2>
+            <div class="contacts-grid">
+                <div class="contact-item animate-fade-in">
+                    <div class="contact-icon"></div>
+                    <h3>Email</h3>
+                    <a href="mailto:daniil.almaty2019@gmail.com">daniil.almaty2019@gmail.com</a>
+                </div>
+                <div class="contact-item animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="contact-icon"></div>
+                    <h3>Telegram</h3>
+                    <a href="https://t.me/EngineerusQuestBot" target="_blank">@EngineerusQuestBot</a>
+                </div>
+                <div class="contact-item animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="contact-icon"></div>
+                    <h3>GitHub</h3>
+                    <a href="https://github.com/Noob1Minecraft/Engineerus_Quest" target="_blank">Engineerus_Quest</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 Engineerus Quest. Made with  for engineering students</p>
+    </footer>
+
+    <script>
+        // === SPLASH SCREEN ===
+        function initSplashScreen() {
+            const splash = document.getElementById('splashScreen');
+            const progressBar = document.getElementById('splashProgress');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        splash.classList.add('hidden');
+                        setTimeout(() => splash.remove(), 800);
+                    }, 300);
+                }
+                progressBar.style.width = progress + '%';
+            }, 150);
+        }
+
+        // === ФОРМА РЕГИСТРАЦИИ ===
+        function handleSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('regEmail').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            
+            if (!email || !username) {
+                alert('Заполни все поля!');
+                return;
+            }
+            
+            // Сохраняем данные
+            localStorage.setItem('user_email', email);
+            localStorage.setItem('username', username);
+            
+            // Генерируем ID из email
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                const char = email.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            const numericId = Math.abs(hash);
+            localStorage.setItem('user_tg_id', numericId);
+            
+            // Переход на app page
+            window.location.href = 'app.html';
+        }
+
+        // === ПЛАВНАЯ ПРОКРУТКА ===
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Запуск splash screen
+        window.addEventListener('DOMContentLoaded', initSplashScreen);
+    </script>
+</body>
+</html>

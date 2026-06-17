@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обратная связь | Engineerus Quest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text: #0F172A;
+            --text-muted: #64748B;
+            --success: #10B981;
+            --error: #EF4444;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 1.5rem;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--primary-hover); }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin: 1.25rem 0 0.5rem;
+            color: var(--text);
+        }
+        label span {
+            color: var(--error);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--primary-hover); }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            background: #D1FAE5;
+            color: #065F46;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .error-message {
+            display: none;
+            background: #FEE2E2;
+            color: #991B1B;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 640px) {
+            .card { padding: 1.5rem 1rem; }
+            header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">← На главную</a>
+        <a href="#top">⬆ Наверх</a>
+    </nav>
+
+    <div class="container" id="top">
+        <header>
+            <h1> Обратная связь</h1>
+            <p>Есть вопросы или предложения? Напишите нам!</p>
+        </header>
+
+        <div class="card">
+            <form id="contactForm" onsubmit="handleSubmit(event)">
+                <label for="name">
+                    Имя <span>*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="Ваше имя" 
+                    required
+                >
+
+                <label for="email">
+                    Email <span>*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="example@mail.com" 
+                    required
+                >
+
+                <label for="university">Вуз</label>
+                <select id="university" name="university">
+                    <option value="">Выберите вуз</option>
+                    <option value="satbayev">Satbayev University</option>
+                    <option value="nu">Nazarbayev University</option>
+                    <option value="kbtu">KBTU (ШИТИ)</option>
+                    <option value="aues">AUES (АУЭС)</option>
+                    <option value="other">Другой</option>
+                </select>
+
+                <label for="message">
+                    Сообщение <span>*</span>
+                </label>
+                <textarea 
+                    id="message" 
+                    name="message" 
+                    placeholder="Напишите ваше сообщение..." 
+                    required
+                ></textarea>
+
+                <button type="submit" id="submitBtn">
+                    Отправить сообщение
+                </button>
+
+                <div class="success-message" id="successMsg">
+                     Спасибо! Ваше сообщение отправлено. Мы ответим в течение 24 часов.
+                </div>
+
+                <div class="error-message" id="errorMsg">
+                     Произошла ошибка. Попробуйте снова или напишите нам в Telegram.
+                </div>
+            </form>
+        </div>
+
+        <footer>
+            <p>Или напишите нам напрямую: <a href="https://t.me/daniil_engineerus" target="_blank">@daniil_engineerus</a></p>
+            <p style="margin-top: 0.5rem;">&copy; 2026 Engineerus Quest</p>
+        </footer>
+    </div>
+
+    <script>
+        function handleSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = document.getElementById('submitBtn');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            // Скрываем сообщения
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Блокируем кнопку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+            
+            // Собираем данные
+            const formData = {
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
+                university: form.university.value,
+                message: form.message.value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            
+            // Валидация
+            if (!formData.name || !formData.email || !formData.message) {
+                errorMsg.textContent = ' Заполните все обязательные поля';
+                errorMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить сообщение';
+                return;
+            }
+            
+            // Email валидация
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                errorMsg.textContent = ' Введите корректный email';
+                errorMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить сообщение';
+                return;
+            }
+            
+            // Здесь можно отправить данные на сервер
+            // fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) })
+            
+            // Имитация отправки (для демо)
+            setTimeout(() => {
+                console.log('Form data:', formData);
+                successMsg.style.display = 'block';
+                form.reset();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить сообщение';
+                
+                // Скрываем сообщение через 5 секунд
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 5000);
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
