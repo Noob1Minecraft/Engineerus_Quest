@@ -45,7 +45,7 @@ async def init_db():
             quest_id TEXT NOT NULL, completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(telegram_id, quest_id))""")
         
-        # === НОВЫЕ КОЛОНКИ ДЛЯ ЕЖЕДНЕВНЫХ КВЕСТОВ ===
+        # === АВТОМАТИЧЕСКИЕ АЛЬТЕРЫ (НАКАТЫВАЕМ НОВЫЕ КОЛОНКИ) ===
         try:
             await db.execute("ALTER TABLE users ADD COLUMN active_quest_type TEXT")
         except:
@@ -54,10 +54,15 @@ async def init_db():
             await db.execute("ALTER TABLE users ADD COLUMN last_daily_quest TEXT")
         except:
             pass
-        
-        # === НОВАЯ КОЛОНКА ДЛЯ МУЛЬТИЯЗЫЧНОСТИ ===
         try:
             await db.execute("ALTER TABLE users ADD COLUMN preferred_lang TEXT DEFAULT 'ru'")
+        except:
+            pass
+        
+        #  НАКАТЫВАЕМ КОЛОНКУ ДЛЯ ХЭША ПАРОЛЯ
+        try:
+            await db.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
+            print(" Колонка password_hash успешно добавлена в таблицу users")
         except:
             pass
         
@@ -82,7 +87,7 @@ async def get_user(tg_id: int):
         return _row_to_dict(row) if row else None
 
 def _row_to_dict(row):
-    """ ОБНОВЛЕНО: добавлено поле preferred_lang"""
+    """ ОБНОВЛЕНО: Полная проверка длины кортежа во избежание IndexErrors """
     return {
         "id": row[0], 
         "telegram_id": row[1],  
@@ -101,8 +106,29 @@ def _row_to_dict(row):
         "created_at": row[14],
         "active_quest_type": row[15] if len(row) > 15 else None,
         "last_daily_quest": row[16] if len(row) > 16 else None,
-        "preferred_lang": row[17] if len(row) > 17 else "ru"  # ✅ НОВОЕ
+        "preferred_lang": row[17] if len(row) > 17 else "ru",
+        "password_hash": row[18] if len(row) > 18 else None  #  ДОБАВЛЕНО
     }
+
+#  НОВЫЕ ФУНКЦИИ ДЛЯ ПОДДЕРЖКИ ВЕБ-АУТЕНТИФИКАЦИИ
+
+async def save_password_hash(tg_id: int, hashed_password: str):
+    """Сохраняет хэшированный пароль для пользователя"""
+    async with get_db() as db:
+        await db.execute(
+            "UPDATE users SET password_hash = ? WHERE telegram_id = ?", 
+            (hashed_password, tg_id)
+        )
+        await db.commit()
+
+async def get_password_hash(tg_id: int) -> str:
+    """Получает хэш пароля пользователя для проверки при логине"""
+    async with get_db() as db:
+        cur = await db.execute("SELECT password_hash FROM users WHERE telegram_id = ?", (tg_id,))
+        row = await cur.fetchone()
+        return row[0] if row else None
+
+# === ОСТАЛЬНЫЕ ФУНКЦИИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ===
 
 async def update_username(tg_id: int, username: str):
     async with get_db() as db:
@@ -218,8 +244,6 @@ async def get_completed_quests(tg_id: int):
         )
         return await cur.fetchall()
 
-# === НОВЫЕ ФУНКЦИИ ДЛЯ ЕЖЕДНЕВНЫХ КВЕСТОВ ===
-
 async def set_daily_quest(tg_id: int, quest_type: str, date_str: str):
     async with get_db() as db:
         await db.execute(
@@ -258,10 +282,7 @@ async def reset_streak(tg_id: int):
         )
         await db.commit()
 
-# === НОВЫЕ ФУНКЦИИ ДЛЯ МУЛЬТИЯЗЫЧНОСТИ ===
-
 async def set_preferred_lang(tg_id: int, lang: str):
-    """Установить предпочитаемый язык пользователя"""
     if lang not in ["ru", "kk", "en"]:
         lang = "ru"
     async with get_db() as db:
@@ -272,7 +293,6 @@ async def set_preferred_lang(tg_id: int, lang: str):
         await db.commit()
 
 async def get_preferred_lang(tg_id: int) -> str:
-    """Получить предпочитаемый язык пользователя"""
     async with get_db() as db:
         cur = await db.execute(
             "SELECT preferred_lang FROM users WHERE telegram_id = ?",
