@@ -1066,42 +1066,72 @@
     }
 }
 
-        async function loadQuests() {
-            if (!currentUser) return;
-            try {
-                const [questsRes, completedRes] = await Promise.all([
-                    fetch(`${API}/quests`),
-                    fetch(`${API}/quests/completed/${currentUser.tg_id}`)
-                ]);
-                const quests = await questsRes.json();
-                const completed = await completedRes.json();
-                
-                const list = document.getElementById('quests-list');
-                list.innerHTML = '';
-                
-                for (const quest of Object.values(quests.quests)) {
-                    const isCompleted = completed.completed.includes(quest.id);
-                    const card = document.createElement('div');
-                    card.className = 'quest-card' + (isCompleted ? ' completed' : '');
-                    card.innerHTML = `
-                        <div class="quest-header">
-                            <span class="quest-name">${quest.name}</span>
-                            <span class="quest-xp">+${quest.xp} XP</span>
-                        </div>
-                        <div style="color: var(--text-muted); margin-bottom: 0.5rem;">${quest.desc}</div>
-                        <div style="background: var(--bg-light); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; display: inline-block;">
-                            ${translations[currentLang].quest_reward} ${quest.reward}
-                        </div>
-                        ${!isCompleted 
-                            ? `<button onclick="completeQuest('${quest.id}')" style="margin-top: 1rem; width: 100%;">${translations[currentLang].quest_check}</button>` 
-                            : `<p style="margin-top: 1rem; color: var(--success); font-weight: 600;">${translations[currentLang].quest_completed}</p>`}
-                    `;
-                    list.appendChild(card);
-                }
-            } catch (e) {
-                console.error('Ошибка квестов:', e);
-            }
+       async function loadQuests() {
+    if (!currentUser) {
+        console.log(' loadQuests: currentUser не определён');
+        return;
+    }
+    
+    console.log(' loadQuests: currentUser =', currentUser);
+    
+    try {
+        const tgId = currentUser.tg_id;
+        if (!tgId) {
+            console.log('️ loadQuests: telegram_id отсутствует, используем fallback');
+            document.getElementById('quests-list').innerHTML = 
+                '<p style="padding: 2rem; text-align: center; color: var(--text-muted);">⚠️ Привяжи Telegram аккаунт через бота командой /bind</p>';
+            return;
         }
+        
+        console.log('📡 Запрос квестов для tg_id:', tgId);
+        
+        const [questsRes, completedRes] = await Promise.all([
+            fetch(`${API}/quests`),
+            fetch(`${API}/quests/completed/${tgId}`)
+        ]);
+        
+        console.log(' Ответ quests:', questsRes.status);
+        console.log(' Ответ completed:', completedRes.status);
+        
+        const quests = await questsRes.json();
+        const completed = await completedRes.json();
+        
+        console.log(' Квесты получены:', quests);
+        console.log(' Выполненные:', completed);
+        
+        const list = document.getElementById('quests-list');
+        list.innerHTML = '';
+        
+        if (!quests.quests || Object.keys(quests.quests).length === 0) {
+            list.innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--text-muted);">Квесты не найдены</p>';
+            return;
+        }
+        
+        for (const quest of Object.values(quests.quests)) {
+            const isCompleted = completed.completed && completed.completed.includes(quest.id);
+            const card = document.createElement('div');
+            card.className = 'quest-card' + (isCompleted ? ' completed' : '');
+            card.innerHTML = `
+                <div class="quest-header">
+                    <span class="quest-name">${quest.name}</span>
+                    <span class="quest-xp">+${quest.xp} XP</span>
+                </div>
+                <div style="color: var(--text-muted); margin-bottom: 0.5rem;">${quest.desc}</div>
+                <div style="background: var(--bg-light); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; display: inline-block;">
+                    ${translations[currentLang].quest_reward} ${quest.reward}
+                </div>
+                ${!isCompleted 
+                    ? `<button onclick="completeQuest('${quest.id}')" style="margin-top: 1rem; width: 100%;">${translations[currentLang].quest_check}</button>` 
+                    : `<p style="margin-top: 1rem; color: var(--success); font-weight: 600;">${translations[currentLang].quest_completed}</p>`}
+            `;
+            list.appendChild(card);
+        }
+    } catch (e) {
+        console.error(' Ошибка квестов:', e);
+        document.getElementById('quests-list').innerHTML = 
+            `<p style="padding: 2rem; text-align: center; color: var(--error);">Ошибка загрузки квестов: ${e.message}</p>`;
+    }
+}
 
         async function completeQuest(questId) {
             if (!currentUser) return;
@@ -1127,38 +1157,47 @@
         }
 
         async function loadLeaderboard() {
-            try {
-                const res = await fetch(`${API}/leaderboard`);
-                const data = await res.json();
-                const list = document.getElementById('leaderboard-list');
-                list.innerHTML = '';
-                
-                if (data.leaderboard.length === 0) {
-                    list.innerHTML = `<p style="padding: 2rem; text-align: center; color: var(--text-muted);">${translations[currentLang].leaderboard_empty}</p>`;
-                    return;
-                }
-                
-                data.leaderboard.forEach((user, idx) => {
-                    const rank = idx + 1;
-                    const medal = rank === 1 ? '' : rank === 2 ? '' : rank === 3 ? '' : `#${rank}`;
-                    const rankClass = rank <= 3 ? `rank-${rank}` : '';
-                    const item = document.createElement('div');
-                    item.className = 'leaderboard-item animate-fade-in';
-                    item.style.animationDelay = `${idx * 0.1}s`;
-                    item.innerHTML = `
-                        <div class="rank ${rankClass}">${medal}</div>
-                        <div class="user-info">
-                            <div class="user-name">${user.username}</div>
-                            <div class="user-level">${translations[currentLang].leaderboard_level} ${user.level} | 🔥 ${user.streak} ${translations[currentLang].leaderboard_days}</div>
-                        </div>
-                        <div class="user-xp">${user.xp} XP</div>
-                    `;
-                    list.appendChild(item);
-                });
-            } catch (e) {
-                console.error('Ошибка лидерборда:', e);
-            }
+    console.log(' loadLeaderboard: API =', API);
+    
+    try {
+        const res = await fetch(`${API}/leaderboard`);
+        console.log(' Leaderboard status:', res.status);
+        
+        const data = await res.json();
+        console.log(' Leaderboard data:', data);
+        
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = '';
+        
+        if (!data.leaderboard || data.leaderboard.length === 0) {
+            list.innerHTML = `<p style="padding: 2rem; text-align: center; color: var(--text-muted);">${translations[currentLang].leaderboard_empty}</p>`;
+            return;
         }
+        
+        data.leaderboard.forEach((user, idx) => {
+            const rank = idx + 1;
+            const medal = rank === 1 ? '' : rank === 2 ? '' : rank === 3 ? '' : `#${rank}`;
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+            const item = document.createElement('div');
+            item.className = 'leaderboard-item animate-fade-in';
+            item.style.animationDelay = `${idx * 0.1}s`;
+            item.innerHTML = `
+                <div class="rank ${rankClass}">${medal}</div>
+                <div class="user-info">
+                    <div class="user-name">${user.username || 'Аноним'}</div>
+                    <div class="user-level">${translations[currentLang].leaderboard_level} ${user.level} | 🔥 ${user.streak} ${translations[currentLang].leaderboard_days}</div>
+                </div>
+                <div class="user-xp">${user.xp} XP</div>
+            `;
+            list.appendChild(item);
+        });
+    } catch (e) {
+        console.error(' Ошибка лидерборда:', e);
+        document.getElementById('leaderboard-list').innerHTML = 
+            `<p style="padding: 2rem; text-align: center; color: var(--error);">Ошибка: ${e.message}</p>`;
+    }
+}
+        
 
         async function loadAchievements() {
             if (!currentUser) return;
