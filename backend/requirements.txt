@@ -5,3 +5,4 @@ httpx
 aiogram
 python-dotenv
 passlib[bcrypt]
+pydantic
