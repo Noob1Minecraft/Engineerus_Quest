@@ -100,11 +100,32 @@ async def get_or_create_user(tg_id: int, username: str = ""):
     async with get_db() as db:
         cur = await db.execute("SELECT * FROM users WHERE telegram_id = ?", (tg_id,))
         row = await cur.fetchone()
+        
         if not row:
-            await db.execute("INSERT INTO users (telegram_id, username, last_active) VALUES (?, ?, date('now'))", (tg_id, username))
-            await db.commit()
-            cur = await db.execute("SELECT * FROM users WHERE telegram_id = ?", (tg_id,))
-            row = await cur.fetchone()
+            # Создаём нового пользователя
+            try:
+                print(f" Создаём пользователя tg_id={tg_id}")
+                await db.execute(
+                    "INSERT INTO users (telegram_id, username, last_active) VALUES (?, ?, date('now'))", 
+                    (tg_id, username)
+                )
+                await db.commit()
+                
+                # Снова получаем созданного пользователя
+                cur = await db.execute("SELECT * FROM users WHERE telegram_id = ?", (tg_id,))
+                row = await cur.fetchone()
+                
+                if not row:
+                    print(f" КРИТИЧЕСКАЯ ОШИБКА: Пользователь не создан для tg_id={tg_id}")
+                    return None
+                else:
+                    print(f" Пользователь создан: id={row[0]}, tg_id={row[1]}")
+            except Exception as e:
+                print(f" Ошибка создания пользователя tg_id={tg_id}: {e}")
+                # Может быть, пользователь уже существует (race condition)
+                cur = await db.execute("SELECT * FROM users WHERE telegram_id = ?", (tg_id,))
+                row = await cur.fetchone()
+        
         return _row_to_dict(row)
 
 async def get_user(tg_id: int):
@@ -206,6 +227,15 @@ async def update_streak(tg_id: int):
         streak, last_active = row
         today = date.today()
         
+        #  ИСПРАВЛЕНИЕ: если стрик 0 — устанавливаем в 1 (первый вход)
+        if not streak or streak == 0:
+            await db.execute(
+                "UPDATE users SET streak = 1, last_active = ? WHERE telegram_id = ?",
+                (today, tg_id)
+            )
+            await db.commit()
+            return
+        
         if last_active:
             last_date = date.fromisoformat(str(last_active))
             if last_date == today:
@@ -213,7 +243,7 @@ async def update_streak(tg_id: int):
                 return
             elif last_date == today - timedelta(days=1):
                 # Вчера был активен - увеличиваем стрик
-                streak = (streak or 0) + 1
+                streak = streak + 1
             else:
                 # Пропустил день - сбрасываем стрик на 1
                 streak = 1
@@ -394,10 +424,31 @@ async def authenticate_user(email: str, password: str):
     """Аутентификация пользователя по email и паролю"""
     password_hash = hashlib.sha256(password.encode()).hexdigest()
     
+    print(f" LOGIN попытка: email={email}")
+    print(f" Хэш пароля: {password_hash[:20]}...")
+    
     async with get_db() as db:
-        cur = await db.execute(
-            "SELECT * FROM users WHERE email = ? AND password_hash = ?",
-            (email, password_hash)
-        )
+        # Сначала проверяем, есть ли пользователь с таким email
+        cur = await db.execute("SELECT email, password_hash FROM users WHERE email = ?", (email,))
         row = await cur.fetchone()
-        return _row_to_dict(row) if row else None
+        
+        if not row:
+            print(f" Пользователь с email={email} НЕ НАЙДЕН в БД")
+            return None
+        
+        db_email, db_hash = row
+        print(f" Пользователь найден. Хэш в БД: {db_hash[:20] if db_hash else 'None'}...")
+        
+        if not db_hash:
+            print(f" У пользователя НЕТ пароля в БД!")
+            return None
+        
+        if db_hash != password_hash:
+            print(f" Пароли НЕ СОВПАДАЮТ!")
+            return None
+        
+        # Всё ок — возвращаем пользователя
+        cur = await db.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = await cur.fetchone()
+        print(f" Вход успешен!")
+        return _row_to_dict(row)

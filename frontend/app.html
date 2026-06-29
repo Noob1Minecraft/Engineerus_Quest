@@ -48,6 +48,122 @@
         .animate-pulse { animation: pulse 2s infinite; }
         .animate-glow { animation: glow 2s infinite; }
 
+        /* === ФОРМА ВХОДА === */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+        .auth-box {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 3rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: fadeIn 0.6s ease-out;
+        }
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg);
+            padding: 4px;
+            border-radius: 12px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .auth-tab.active {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .auth-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .auth-error {
+            background: #FEE2E2;
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        .auth-success {
+            background: #D1FAE5;
+            color: #065F46;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        /* === ОСНОВНОЙ САЙТ === */
+        .app-container { display: none; }
+        .app-container.active { display: block; }
+
         nav {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -605,229 +721,345 @@
     </style>
 </head>
 <body>
-    <div class="onboarding-overlay" id="onboardingOverlay" style="display: none;">
-        <div class="onboarding-modal">
-            <button class="onboarding-skip" onclick="closeOnboarding()">×</button>
-            <div class="onboarding-step-counter" id="onboardingStepCounter">Step 1 of 5</div>
-            <h2 class="onboarding-title" id="onboardingTitle">Welcome!</h2>
-            <p class="onboarding-text" id="onboardingText">Welcome to Engineerus Quest!</p>
-            <div class="onboarding-progress" id="onboardingProgress"></div>
-            <div class="onboarding-buttons">
-                <button class="onboarding-btn onboarding-btn-secondary" onclick="prevStep()" id="prevBtn" style="display: none;">Back</button>
-                <button class="onboarding-btn onboarding-btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
+    <!-- === ЭКРАН ВХОДА / РЕГИСТРАЦИИ === -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <h1 class="auth-title">Engineerus Quest</h1>
+            <p class="auth-subtitle" id="authSubtitle">Геймифицированное AI-обучение для Mechanical, Electrical и Robotics</p>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
             </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="logoutModal">
-        <div class="modal">
-            <h3 data-i18n="logout_title">Logout?</h3>
-            <p data-i18n="logout_text" style="color: var(--text-muted); margin: 1rem 0;">Are you sure?</p>
-            <div style="display: flex; gap: 1rem;">
-                <button onclick="closeLogoutModal()" style="flex: 1; background: var(--surface); color: var(--text); border: 2px solid var(--border);" data-i18n="cancel">Cancel</button>
-                <button onclick="confirmLogout()" style="flex: 1; background: var(--error);" data-i18n="logout">Logout</button>
-            </div>
-        </div>
-    </div>
-
-    <nav>
-        <ul>
-            <li><a href="#home" data-i18n="nav_home">Home</a></li>
-            <li><a href="#profile" data-i18n="nav_profile">Profile</a></li>
-            <li><a href="#quests" data-i18n="nav_quests">Quests</a></li>
-            <li><a href="#leaderboard" data-i18n="nav_leaderboard">Leaderboard</a></li>
-            <li><a href="#learning" data-i18n="nav_learning">Learning</a></li>
-            <li><a href="#ai" data-i18n="nav_ai">AI Assistant</a></li>
-            <li><a href="#instructions" data-i18n="nav_instructions">Instructions</a></li>
-            <li>
-                <select id="langSelector" class="lang-selector" onchange="setLanguage(this.value)">
-                    <option value="ru">RU</option>
-                    <option value="kk">KZ</option>
-                    <option value="en">EN</option>
+            
+            <div class="auth-error" id="authError"></div>
+            <div class="auth-success" id="authSuccess"></div>
+            
+            <!-- Форма входа -->
+            <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                <input type="email" class="auth-input" id="loginEmail" placeholder="Email" required>
+                <input type="password" class="auth-input" id="loginPassword" placeholder="Пароль" required>
+                <button type="submit" class="auth-btn">Войти</button>
+            </form>
+            
+            <!-- Форма регистрации -->
+            <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                <input type="email" class="auth-input" id="regEmail" placeholder="Email" required>
+                <input type="password" class="auth-input" id="regPassword" placeholder="Пароль (мин. 4 символа)" required minlength="4">
+                <input type="text" class="auth-input" id="regUsername" placeholder="Имя (необязательно)">
+                <button type="submit" class="auth-btn">Зарегистрироваться</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <select id="authLangSelector" class="lang-selector" onchange="setAuthLanguage(this.value)">
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="kk">🇰🇿 Қазақша</option>
+                    <option value="en">🇬🇧 English</option>
                 </select>
-            </li>
-            <li><button onclick="logout()" class="btn-logout" data-i18n="logout">Logout</button></li>
-        </ul>
-    </nav>
-
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <h1 data-i18n="hero_title">Engineerus Quest</h1>
-            <p class="tagline" data-i18n="hero_tagline">AI-Powered Learning Platform</p>
-            <p class="subtitle" data-i18n="hero_subtitle">Complete Quests • Earn XP • Master Engineering</p>
-            <div class="hero-cta">
-                <button class="btn-primary" onclick="document.getElementById('profile').scrollIntoView({behavior: 'smooth'})" data-i18n="start_learning">
-                    Start Learning →
-                </button>
             </div>
         </div>
-    </section>
+    </div>
 
-    <div class="container">
-        <section id="profile">
-            <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="profile_title">Your Profile</h2>
-            <div class="stats-grid">
-                <div class="stat-card animate-fade-in">
-                    <span class="stat-value" id="xp-val">0</span>
-                    <span class="stat-label" data-i18n="xp_label">XP Points</span>
-                </div>
-                <div class="stat-card animate-fade-in" style="animation-delay: 0.1s;">
-                    <span class="stat-value" id="level-val">1</span>
-                    <span class="stat-label" data-i18n="level_label">Level</span>
-                </div>
-                <div class="stat-card animate-fade-in" style="animation-delay: 0.2s;">
-                    <span class="stat-value" id="streak-val">0</span>
-                    <span class="stat-label" data-i18n="streak_label">Day Streak</span>
-                </div>
-                <div class="stat-card animate-fade-in" style="animation-delay: 0.3s;">
-                    <span class="stat-value" id="quests-val">0</span>
-                    <span class="stat-label" data-i18n="quests_label">Quests Done</span>
+    <!-- === ОСНОВНОЕ ПРИЛОЖЕНИЕ === -->
+    <div class="app-container" id="appContainer">
+        <div class="onboarding-overlay" id="onboardingOverlay" style="display: none;">
+            <div class="onboarding-modal">
+                <button class="onboarding-skip" onclick="closeOnboarding()">×</button>
+                <div class="onboarding-step-counter" id="onboardingStepCounter">Step 1 of 5</div>
+                <h2 class="onboarding-title" id="onboardingTitle">Welcome!</h2>
+                <p class="onboarding-text" id="onboardingText">Welcome to Engineerus Quest!</p>
+                <div class="onboarding-progress" id="onboardingProgress"></div>
+                <div class="onboarding-buttons">
+                    <button class="onboarding-btn onboarding-btn-secondary" onclick="prevStep()" id="prevBtn" style="display: none;">Back</button>
+                    <button class="onboarding-btn onboarding-btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
                 </div>
             </div>
+        </div>
 
-            <div class="xp-container">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="font-weight: 600;"><span data-i18n="progress_to_level">Progress to Level</span> <span id="next-level">2</span></span>
-                    <span style="font-weight: 600; color: var(--primary);"><span id="xp-current">0</span> / 100 XP</span>
+        <div class="modal-overlay" id="logoutModal">
+            <div class="modal">
+                <h3 data-i18n="logout_title">Выйти из аккаунта?</h3>
+                <p data-i18n="logout_text" style="color: var(--text-muted); margin: 1rem 0;">Вы уверены?</p>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="closeLogoutModal()" style="flex: 1; background: var(--surface); color: var(--text); border: 2px solid var(--border);" data-i18n="cancel">Отмена</button>
+                    <button onclick="confirmLogout()" style="flex: 1; background: var(--error);" data-i18n="logout">Выйти</button>
                 </div>
-                <div class="xp-bar-wrapper">
-                    <div class="xp-bar" id="xp-bar" style="width: 0%;">0 / 100 XP</div>
+            </div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="#home" data-i18n="nav_home">Главная</a></li>
+                <li><a href="#profile" data-i18n="nav_profile">Профиль</a></li>
+                <li><a href="#quests" data-i18n="nav_quests">Квесты</a></li>
+                <li><a href="#leaderboard" data-i18n="nav_leaderboard">Лидеры</a></li>
+                <li><a href="#learning" data-i18n="nav_learning">Обучение</a></li>
+                <li><a href="#ai" data-i18n="nav_ai">ИИ-помощник</a></li>
+                <li><a href="#instructions" data-i18n="nav_instructions">Инструкция</a></li>
+                <li>
+                    <select id="langSelector" class="lang-selector" onchange="setLanguage(this.value)">
+                        <option value="ru">RU</option>
+                        <option value="kk">KZ</option>
+                        <option value="en">EN</option>
+                    </select>
+                </li>
+                <li><button onclick="logout()" class="btn-logout" data-i18n="logout">Выйти</button></li>
+            </ul>
+        </nav>
+
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <h1 data-i18n="hero_title">Engineerus Quest</h1>
+                <p class="tagline" data-i18n="hero_tagline">AI-платформа для студентов-инженеров</p>
+                <p class="subtitle" data-i18n="hero_subtitle">Выполняй квесты • Получай XP • Осваивай инженерию</p>
+                <div class="hero-cta">
+                    <button class="btn-primary" onclick="document.getElementById('profile').scrollIntoView({behavior: 'smooth'})" data-i18n="start_learning">
+                        Начать обучение →
+                    </button>
                 </div>
-                <p style="text-align: center; color: var(--text-muted); margin-top: 1rem;">
-                    <span id="xp-to-next">100</span> <span data-i18n="xp_needed">XP needed for next level</span>
-                </p>
             </div>
         </section>
 
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('quests', this)" data-i18n="tab_quests">Quests</button>
-            <button class="tab" onclick="switchTab('leaderboard', this)" data-i18n="tab_leaderboard">Leaderboard</button>
-            <button class="tab" onclick="switchTab('learning', this)" data-i18n="tab_learning">Learning</button>
-            <button class="tab" onclick="switchTab('ai', this)" data-i18n="tab_ai">AI Assistant</button>
-            <button class="tab" onclick="switchTab('instructions', this)" data-i18n="tab_instructions">Instructions</button>
-        </div>
-
-        <div id="quests-tab" class="tab-content active">
-            <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="quests_title">Active Quests</h2>
-            <div id="quests-list"></div>
-        </div>
-
-        <div id="leaderboard-tab" class="tab-content">
-            <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="leaderboard_title">Leaderboard</h2>
-            <div id="leaderboard-list"></div>
-        </div>
-
-        <div id="learning-tab" class="tab-content">
-            <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="learning_title">Engineering Learning Path</h2>
-            
-            <div class="engineering-grid">
-                <div class="engineering-card" onclick="showBooks('mechanical')">
-                    <h3>Mechanical Engineering</h3>
-                    <p>Study mechanics, thermodynamics, materials science, and machine design</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
-                        <span style="color: var(--text-muted); font-size: 0.875rem;">6 books available</span>
+        <div class="container">
+            <section id="profile">
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="profile_title">Твой профиль</h2>
+                <div class="stats-grid">
+                    <div class="stat-card animate-fade-in">
+                        <span class="stat-value" id="xp-val">0</span>
+                        <span class="stat-label" data-i18n="xp_label">XP очки</span>
+                    </div>
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.1s;">
+                        <span class="stat-value" id="level-val">1</span>
+                        <span class="stat-label" data-i18n="level_label">Уровень</span>
+                    </div>
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.2s;">
+                        <span class="stat-value" id="streak-val">0</span>
+                        <span class="stat-label" data-i18n="streak_label">Дней подряд</span>
+                    </div>
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.3s;">
+                        <span class="stat-value" id="quests-val">0</span>
+                        <span class="stat-label" data-i18n="quests_label">Квестов выполнено</span>
                     </div>
                 </div>
-                <div class="engineering-card" onclick="showBooks('electrical')">
-                    <h3>Electrical Engineering</h3>
-                    <p>Master circuits, electronics, power systems, and control theory</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
-                        <span style="color: var(--text-muted); font-size: 0.875rem;">4 books available</span>
+
+                <div class="xp-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;"><span data-i18n="progress_to_level">До следующего уровня:</span> <span id="next-level">2</span></span>
+                        <span style="font-weight: 600; color: var(--primary);"><span id="xp-current">0</span> / 100 XP</span>
+                    </div>
+                    <div class="xp-bar-wrapper">
+                        <div class="xp-bar" id="xp-bar" style="width: 0%;">0 / 100 XP</div>
+                    </div>
+                    <p style="text-align: center; color: var(--text-muted); margin-top: 1rem;">
+                        <span id="xp-to-next">100</span> <span data-i18n="xp_needed">XP нужно</span>
+                    </p>
+                </div>
+            </section>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('quests', this)" data-i18n="tab_quests">Квесты</button>
+                <button class="tab" onclick="switchTab('leaderboard', this)" data-i18n="tab_leaderboard">Лидеры</button>
+                <button class="tab" onclick="switchTab('learning', this)" data-i18n="tab_learning">Обучение</button>
+                <button class="tab" onclick="switchTab('ai', this)" data-i18n="tab_ai">ИИ-помощник</button>
+                <button class="tab" onclick="switchTab('instructions', this)" data-i18n="tab_instructions">Инструкция</button>
+            </div>
+
+            <div id="quests-tab" class="tab-content active">
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="quests_title">Активные квесты</h2>
+                <div id="quests-list"></div>
+            </div>
+
+            <div id="leaderboard-tab" class="tab-content">
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="leaderboard_title">Таблица лидеров</h2>
+                <div id="leaderboard-list"></div>
+            </div>
+
+            <div id="learning-tab" class="tab-content">
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="learning_title">Путь обучения инженера</h2>
+                
+                <div class="engineering-grid">
+                    <div class="engineering-card" onclick="showBooks('mechanical')">
+                        <h3>Mechanical Engineering</h3>
+                        <p>Механика, термодинамика, материаловедение и проектирование машин</p>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
+                            <span style="color: var(--text-muted); font-size: 0.875rem;">6 книг доступно</span>
+                        </div>
+                    </div>
+                    <div class="engineering-card" onclick="showBooks('electrical')">
+                        <h3>Electrical Engineering</h3>
+                        <p>Схемы, электроника, энергосистемы и теория управления</p>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
+                            <span style="color: var(--text-muted); font-size: 0.875rem;">4 книги доступно</span>
+                        </div>
+                    </div>
+                    <div class="engineering-card" onclick="showBooks('robotics')">
+                        <h3>Robotics & AI</h3>
+                        <p>Робототехника, автоматизация, машинное обучение и компьютерное зрение</p>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
+                            <span style="color: var(--text-muted); font-size: 0.875rem;">5 книг доступно</span>
+                        </div>
                     </div>
                 </div>
-                <div class="engineering-card" onclick="showBooks('robotics')">
-                    <h3>Robotics & AI</h3>
-                    <p>Learn robotics, automation, machine learning, and computer vision</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
-                        <span style="color: var(--text-muted); font-size: 0.875rem;">5 books available</span>
+
+                <div id="books-section" style="display: none; margin-top: 3rem;">
+                    <h3 id="books-title" style="font-size: 1.5rem; margin-bottom: 1rem;"></h3>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <button class="filter-btn active" onclick="filterBooks('all')" data-i18n="filter_all">Все</button>
+                        <button class="filter-btn" onclick="filterBooks('ru')">Русский</button>
+                        <button class="filter-btn" onclick="filterBooks('en')">English</button>
+                        <button class="filter-btn" onclick="filterBooks('kz')">Қазақша</button>
                     </div>
+                    <div class="books-grid" id="books-grid"></div>
                 </div>
             </div>
 
-            <div id="books-section" style="display: none; margin-top: 3rem;">
-                <h3 id="books-title" style="font-size: 1.5rem; margin-bottom: 1rem;"></h3>
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                    <button class="filter-btn active" onclick="filterBooks('all')" data-i18n="filter_all">All</button>
-                    <button class="filter-btn" onclick="filterBooks('ru')">Russian</button>
-                    <button class="filter-btn" onclick="filterBooks('en')">English</button>
-                    <button class="filter-btn" onclick="filterBooks('kz')">Kazakh</button>
-                </div>
-                <div class="books-grid" id="books-grid"></div>
-            </div>
-        </div>
-
-        <div id="ai-tab" class="tab-content">
-            <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="ai_title">AI Assistant</h2>
-            
-            <div class="card">
-                <label data-i18n="ai_mode">Choose AI Mode:</label>
-                <select id="ai-mode" onchange="toggleAIMode()">
-                    <option value="modules" data-i18n="ai_mode_modules">Module-Specific AI</option>
-                    <option value="general" data-i18n="ai_mode_general">General Engineering AI</option>
-                </select>
-
-                <div id="module-section">
-                    <label data-i18n="select_module">Select Module:</label>
-                    <select id="module">
-                        <option value="tutor" data-i18n="module_tutor">TUTOR AI</option>
-                        <option value="material" data-i18n="module_material">MaterialSwap</option>
-                        <option value="patent" data-i18n="module_patent">PatentCraft</option>
-                        <option value="legal" data-i18n="module_legal">EngiLegal</option>
-                        <option value="match" data-i18n="module_match">EngiMatch</option>
+            <div id="ai-tab" class="tab-content">
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="ai_title">ИИ-помощник</h2>
+                
+                <div class="card">
+                    <label data-i18n="ai_mode">Режим ИИ:</label>
+                    <select id="ai-mode" onchange="toggleAIMode()">
+                        <option value="modules" data-i18n="ai_mode_modules">Модульный ИИ (по конкретным темам)</option>
+                        <option value="general" data-i18n="ai_mode_general">Общий ИИ (ответит на любой вопрос)</option>
                     </select>
-                </div>
 
-                <label data-i18n="your_question">Your Question:</label>
-                <textarea id="question" rows="4" placeholder="Ask anything about engineering..." data-i18n-placeholder="question_placeholder"></textarea>
-                <button onclick="sendQuery()" style="margin-top: 1.5rem; width: 100%; padding: 1rem; font-size: 1.1rem;" data-i18n="send_to_ai">
-                    Send to AI
-                </button>
-                <div id="ai-response" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: var(--bg); border-radius: var(--radius); border-left: 4px solid var(--primary);"></div>
+                    <div id="module-section">
+                        <label data-i18n="select_module">Выберите модуль:</label>
+                        <select id="module">
+                            <option value="tutor" data-i18n="module_tutor">TUTOR AI (Общий репетитор)</option>
+                            <option value="material" data-i18n="module_material">MaterialSwap (Материалы)</option>
+                            <option value="patent" data-i18n="module_patent">PatentCraft (Патенты)</option>
+                            <option value="legal" data-i18n="module_legal">EngiLegal (Документы)</option>
+                            <option value="match" data-i18n="module_match">EngiMatch (Команда)</option>
+                        </select>
+                    </div>
+
+                    <label data-i18n="your_question">Ваш вопрос:</label>
+                    <textarea id="question" rows="4" placeholder="Спросите что угодно об инженерии..." data-i18n-placeholder="question_placeholder"></textarea>
+                    <button onclick="sendQuery()" style="margin-top: 1.5rem; width: 100%; padding: 1rem; font-size: 1.1rem;" data-i18n="send_to_ai">
+                        Отправить ИИ
+                    </button>
+                    <div id="ai-response" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: var(--bg); border-radius: var(--radius); border-left: 4px solid var(--primary);"></div>
+                </div>
             </div>
+
+            <div id="instructions-tab" class="tab-content">
+    <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="instructions_title">Как пользоваться</h2>
+    
+    <!-- === НОВЫЙ БЛОК: СИНХРОНИЗАЦИЯ === -->
+    <div id="instructions-tab" class="tab-content">
+    <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="instructions_title">Как пользоваться</h2>
+    
+    <!-- === БАННЕР СИНХРОНИЗАЦИИ === -->
+    <div class="card" style="border-left: 4px solid var(--warning); background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);">
+        <h3 style="margin-bottom: 1rem; color: var(--warning); display: flex; align-items: center; gap: 0.5rem;">
+             Синхронизация с Telegram-ботом
+        </h3>
+        <p style="margin-bottom: 1rem; color: var(--text);">
+            Чтобы твой прогресс синхронизировался между сайтом и Telegram-ботом, выполни следующие шаги <strong>в правильном порядке</strong>:
+        </p>
+        
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+            <h4 style="color: var(--primary); margin-bottom: 1rem;">📱 Шаг 1: Сначала Telegram-бот</h4>
+            <ol style="line-height: 2; padding-left: 1.5rem;">
+                <li>Открой Telegram и найди нашего бота</li>
+                <li>Напиши <code style="background: var(--bg); padding: 0.2rem 0.5rem; border-radius: 4px;">/start</code> → выбери язык</li>
+                <li>Напиши <code style="background: var(--bg); padding: 0.2rem 0.5rem; border-radius: 4px;">/bind email пароль</code><br>
+                    <span style="color: var(--text-muted); font-size: 0.875rem;">(например: <code>/bind teka.artuk@gmail.com mypassword123</code>)</span>
+                </li>
+                <li>Проверь привязку: <code style="background: var(--bg); padding: 0.2rem 0.5rem; border-radius: 4px;">/whoami</code></li>
+            </ol>
         </div>
 
-        <div id="instructions-tab" class="tab-content">
-            <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="instructions_title">How to Use Engineerus Quest</h2>
-            
-            <div class="card">
-                <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="getting_started">Getting Started</h3>
-                <ol style="line-height: 2; padding-left: 1.5rem;">
-                    <li><strong>Complete Your Profile</strong> - Your progress is automatically tracked</li>
-                    <li><strong>Complete Quests</strong> - Earn XP and level up by finishing engineering tasks</li>
-                    <li><strong>Use AI Assistant</strong> - Ask questions about any engineering topic</li>
-                    <li><strong>Study Books</strong> - Access curated books for Mechanical, Electrical, and Robotics</li>
-                    <li><strong>Maintain Streak</strong> - Login daily to keep your streak alive!</li>
-                </ol>
-            </div>
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+            <h4 style="color: var(--primary); margin-bottom: 1rem;">🌐 Шаг 2: Потом сайт</h4>
+            <ol style="line-height: 2; padding-left: 1.5rem;">
+                <li>Открой сайт Engineerus Quest</li>
+                <li>Нажми <strong>"Вход"</strong> (не регистрация!)</li>
+                <li>Введи <strong>тот же email и пароль</strong>, что использовал в боте</li>
+                <li>Твой прогресс автоматически синхронизируется!</li>
+            </ol>
+        </div>
 
-            <div class="card">
-                <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="ai_guide">AI Assistant Guide</h3>
-                <p style="margin-bottom: 1rem;"><strong data-i18n="module_specific">Module-Specific AI:</strong> <span data-i18n="module_specific_desc">Get help with specific engineering modules like materials, patents, or legal documents.</span></p>
-                <p style="margin-bottom: 1rem;"><strong data-i18n="general_ai">General AI:</strong> <span data-i18n="general_ai_desc">Ask any engineering question - from thermodynamics to robotics!</span></p>
-                <p><strong data-i18n="tip">Tip:</strong> <span data-i18n="tip_desc">Be specific in your questions for better answers.</span></p>
-            </div>
+        <div style="background: #D1FAE5; padding: 1rem; border-radius: 12px; border-left: 4px solid var(--success);">
+            <strong> Что будет работать:</strong>
+            <ul style="line-height: 1.8; padding-left: 1.5rem; margin-top: 0.5rem;">
+                <li>XP, уровни и ачивки — общие для сайта и бота</li>
+                <li>Выполненные квесты отображаются везде</li>
+                <li>Стрик (серия дней) синхронизируется</li>
+                <li>Запросы к ИИ считаются вместе</li>
+            </ul>
+        </div>
 
-            <div class="card">
-                <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="learning_path">Learning Path</h3>
-                <p style="margin-bottom: 1rem;" data-i18n="choose_discipline">Choose your engineering discipline:</p>
-                <ul style="line-height: 2; padding-left: 1.5rem;">
-                    <li><strong data-i18n="mechanical">Mechanical Engineering</strong> - <span data-i18n="mechanical_desc">Mechanics, thermodynamics, materials</span></li>
-                    <li><strong data-i18n="electrical">Electrical Engineering</strong> - <span data-i18n="electrical_desc">Circuits, electronics, power systems</span></li>
-                    <li><strong data-i18n="robotics">Robotics & AI</strong> - <span data-i18n="robotics_desc">Automation, machine learning, computer vision</span></li>
-                </ul>
-            </div>
+        <div style="background: #FEE2E2; padding: 1rem; border-radius: 12px; border-left: 4px solid var(--error); margin-top: 1rem;">
+            <strong> Важно:</strong>
+            <p style="margin-top: 0.5rem;">
+                Не регистрируйся на сайте отдельно! Сначала привяжи аккаунт через бота, потом используй тот же email для входа на сайт.
+            </p>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="gamification">Gamification</h3>
-                <ul style="line-height: 2; padding-left: 1.5rem;">
-                    <li><strong data-i18n="xp_points">XP Points</strong> - <span data-i18n="xp_points_desc">Earn experience for every completed task</span></li>
-                    <li><strong data-i18n="levels">Levels</strong> - <span data-i18n="levels_desc">Level up every 100 XP</span></li>
-                    <li><strong data-i18n="streak">Streak</strong> - <span data-i18n="streak_desc">Maintain daily activity for bonus rewards</span></li>
-                    <li><strong data-i18n="leaderboard">Leaderboard</strong> - <span data-i18n="leaderboard_desc">Compete with other students</span></li>
-                </ul>
+    <!-- Остальные блоки -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="getting_started">Начало работы</h3>
+        <ol style="line-height: 2; padding-left: 1.5rem;">
+            <li><strong>Привяжи Telegram-бот</strong> — команда <code>/bind</code> в боте</li>
+            <li><strong>Войди на сайт</strong> — используй тот же email и пароль</li>
+            <li><strong>Выполняй квесты</strong> — получай XP и повышай уровень</li>
+            <li><strong>Используй ИИ-помощник</strong> — задавай вопросы по инженерии</li>
+            <li><strong>Изучай книги</strong> — доступ к подборке по Mechanical, Electrical и Robotics</li>
+            <li><strong>Поддерживай стрик</strong> — заходи каждый день!</li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);"> Команды Telegram-бота</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/start</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Начать работу с ботом</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/bind email пароль</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Привязать аккаунт</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/profile</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Краткая статистика</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/stats</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Полная статистика</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/daily</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Ежедневный квест</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/achievements</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Список ачивок</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/whoami</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Проверить привязку</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/lang</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Сменить язык</p>
             </div>
         </div>
     </div>
+
+    <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="gamification">Геймификация</h3>
+        <ul style="line-height: 2; padding-left: 1.5rem;">
+            <li><strong data-i18n="xp_points">XP очки</strong> — <span data-i18n="xp_points_desc">Зарабатывайте опыт за каждое выполненное задание</span></li>
+            <li><strong data-i18n="levels">Уровни</strong> — <span data-i18n="levels_desc">Повышайте уровень каждые 100 XP</span></li>
+            <li><strong data-i18n="streak">Серия</strong> — <span data-i18n="streak_desc">Поддерживайте ежедневную активность</span></li>
+            <li><strong data-i18n="leaderboard">Таблица лидеров</strong> — <span data-i18n="leaderboard_desc">Соревнуйтесь с другими студентами</span></li>
+        </ul>
+    </div>
+</div>G
 
     <script>
         const API = '/api';
@@ -838,14 +1070,13 @@
         let currentOnboardingStep = 0;
 
         const onboardingSteps = [
-            { title: "Welcome!", text: "Welcome to Engineerus Quest - your AI-powered learning platform!" },
-            { title: "Complete Quests", text: "Earn XP by completing engineering tasks and challenges" },
-            { title: "Use AI Assistant", text: "Ask any engineering question - from thermodynamics to robotics!" },
-            { title: "Study Books", text: "Access curated books for Mechanical, Electrical, and Robotics engineering" },
-            { title: "Let's Start!", text: "You're ready to begin your engineering journey!" }
+            { title: "Добро пожаловать!", text: "Engineerus Quest — твоя AI-платформа для обучения инженерии!" },
+            { title: "Выполняй квесты", text: "Получай XP за инженерные задачи и челленджи" },
+            { title: "Используй ИИ", text: "Задавай любые вопросы по инженерии — от термодинамики до робототехники!" },
+            { title: "Изучай книги", text: "Доступ к подборке книг по Mechanical, Electrical и Robotics" },
+            { title: "Поехали!", text: "Ты готов начать свой путь инженера!" }
         ];
 
-        // Books Database with REAL links and PDF support
         const BOOKS_DATABASE = {
             mechanical: [
                 { id: 1, title: 'Сопротивление материалов', author: 'Александров А.', lang: 'ru', category: 'mechanical', url: 'https://twirpx.com/file/2847563/', desc: 'Простое введение в сопротивление материалов', type: 'pdf' },
@@ -873,7 +1104,7 @@
         const translations = {
             ru: {
                 nav_home: "Главная", nav_profile: "Профиль", nav_quests: "Квесты",
-                nav_leaderboard: "Таблица лидеров", nav_learning: "Обучение",
+                nav_leaderboard: "Лидеры", nav_learning: "Обучение",
                 nav_ai: "ИИ-помощник", nav_instructions: "Инструкция",
                 logout: "Выйти", logout_title: "Выйти из аккаунта?",
                 logout_text: "Вы уверены, что хотите выйти?", cancel: "Отмена",
@@ -906,18 +1137,7 @@
                 your_question: "Ваш вопрос:",
                 question_placeholder: "Спросите что угодно об инженерии...",
                 send_to_ai: "Отправить ИИ",
-                getting_started: "Начало работы", ai_guide: "Гид по ИИ-помощнику",
-                module_specific: "Модульный ИИ:",
-                module_specific_desc: "Получите помощь по конкретным инженерным модулям",
-                general_ai: "Общий ИИ:",
-                general_ai_desc: "Задайте любой вопрос по инженерии - от термодинамики до робототехники!",
-                tip: "Совет:", tip_desc: "Будьте конкретны в вопросах для лучших ответов",
-                learning_path: "Путь обучения",
-                choose_discipline: "Выберите инженерную дисциплину:",
-                mechanical: "Механика", mechanical_desc: "Механика, термодинамика, материалы",
-                electrical: "Электротехника", electrical_desc: "Схемы, электроника, энергосистемы",
-                robotics: "Робототехника и ИИ",
-                robotics_desc: "Автоматизация, машинное обучение, компьютерное зрение",
+                getting_started: "Начало работы",
                 gamification: "Геймификация", xp_points: "XP очки",
                 xp_points_desc: "Зарабатывайте опыт за каждое выполненное задание",
                 levels: "Уровни", levels_desc: "Повышайте уровень каждые 100 XP",
@@ -952,34 +1172,21 @@
                 ai_title: "ЖИ көмекшісі",
                 instructions_title: "Қалай қолдану керек",
                 ai_mode: "ЖИ режимі:",
-                ai_mode_modules: "Модульдік ЖИ (нақты тақырыптар бойынша)",
-                ai_mode_general: "Жалпы ЖИ (кез келген сұраққа жауап береді)",
+                ai_mode_modules: "Модульдік ЖИ",
+                ai_mode_general: "Жалпы ЖИ",
                 select_module: "Модульді таңдаңыз:",
-                module_tutor: "TUTOR AI (Жалпы репетитор)",
-                module_material: "MaterialSwap (Материалдар)",
-                module_patent: "PatentCraft (Патенттер)",
-                module_legal: "EngiLegal (Құжаттар)",
-                module_match: "EngiMatch (Команда)",
+                module_tutor: "TUTOR AI", module_material: "MaterialSwap",
+                module_patent: "PatentCraft", module_legal: "EngiLegal",
+                module_match: "EngiMatch",
                 your_question: "Сіздің сұрағыңыз:",
-                question_placeholder: "Инженерия туралы кез келген сұрақ қойыңыз...",
+                question_placeholder: "Инженерия туралы сұрақ қойыңыз...",
                 send_to_ai: "ЖИ-ге жіберу",
-                getting_started: "Бастау", ai_guide: "ЖИ көмекшісі бойынша нұсқаулық",
-                module_specific: "Модульдік ЖИ:",
-                module_specific_desc: "Нақты инженерлік модульдер бойынша көмек алыңыз",
-                general_ai: "Жалпы ЖИ:",
-                general_ai_desc: "Инженерия туралы кез келген сұрақ қойыңыз!",
-                tip: "Кеңес:", tip_desc: "Жақсы жауаптар үшін нақты сұрақтар қойыңыз",
-                learning_path: "Оқу жолы",
-                choose_discipline: "Инженерлік мамандықты таңдаңыз:",
-                mechanical: "Механика", mechanical_desc: "Механика, термодинамика, материалдар",
-                electrical: "Электр техникасы", electrical_desc: "Схемалар, электроника, энергия жүйелері",
-                robotics: "Робототехника және ЖИ",
-                robotics_desc: "Автоматтандыру, машиналық оқыту",
+                getting_started: "Бастау",
                 gamification: "Ойын элементтері", xp_points: "XP ұпайлары",
                 xp_points_desc: "Әр тапсырма үшін тәжірибе жинаңыз",
                 levels: "Деңгейлер", levels_desc: "Әр 100 XP сайын деңгей көтеріңіз",
                 streak: "Серия", streak_desc: "Күнделікті белсенділікті сақтаңыз",
-                leaderboard: "Көшбасшылар кестесі",
+                leaderboard: "Көшбасшылар",
                 leaderboard_desc: "Басқа студенттермен бәсекелесіңіз",
                 filter_all: "Барлығы", completed: "Орындалды",
                 check_completion: "Орындалуын тексеру",
@@ -1012,26 +1219,13 @@
                 ai_mode_modules: "Module-Specific AI",
                 ai_mode_general: "General Engineering AI",
                 select_module: "Select Module:",
-                module_tutor: "TUTOR AI",
-                module_material: "MaterialSwap",
-                module_patent: "PatentCraft",
-                module_legal: "EngiLegal",
+                module_tutor: "TUTOR AI", module_material: "MaterialSwap",
+                module_patent: "PatentCraft", module_legal: "EngiLegal",
                 module_match: "EngiMatch",
                 your_question: "Your Question:",
                 question_placeholder: "Ask anything about engineering...",
                 send_to_ai: "Send to AI",
-                getting_started: "Getting Started", ai_guide: "AI Assistant Guide",
-                module_specific: "Module-Specific AI:",
-                module_specific_desc: "Get help with specific engineering modules",
-                general_ai: "General AI:",
-                general_ai_desc: "Ask any engineering question!",
-                tip: "Tip:", tip_desc: "Be specific in your questions for better answers",
-                learning_path: "Learning Path",
-                choose_discipline: "Choose your engineering discipline:",
-                mechanical: "Mechanical Engineering", mechanical_desc: "Mechanics, thermodynamics, materials",
-                electrical: "Electrical Engineering", electrical_desc: "Circuits, electronics, power systems",
-                robotics: "Robotics & AI",
-                robotics_desc: "Automation, machine learning, computer vision",
+                getting_started: "Getting Started",
                 gamification: "Gamification", xp_points: "XP Points",
                 xp_points_desc: "Earn experience for every completed task",
                 levels: "Levels", levels_desc: "Level up every 100 XP",
@@ -1044,10 +1238,160 @@
             }
         };
 
+        // === АВТОРИЗАЦИЯ ===
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+            
+            hideAuthMessages();
+        }
+
+        function showAuthError(msg) {
+            const el = document.getElementById('authError');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('authSuccess').style.display = 'none';
+        }
+
+        function showAuthSuccess(msg) {
+            const el = document.getElementById('authSuccess');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('authError').style.display = 'none';
+        }
+
+        function hideAuthMessages() {
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authSuccess').style.display = 'none';
+        }
+
+      async function handleLogin(e) {
+    e.preventDefault();
+    hideAuthMessages();
+    
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        const res = await fetch(`${API}/auth/web/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        if (!res.ok) {
+            const err = await res.json();
+            showAuthError(err.detail || 'Неверный email или пароль');
+            return;
+        }
+        
+        const data = await res.json();
+        localStorage.setItem('user_email', email);
+        
+        //  ВАЖНО: всегда получаем актуальный telegram_id из БД
+        try {
+            const userRes = await fetch(`${API}/user/by-email/${encodeURIComponent(email)}`);
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                if (userData.telegram_id) {
+                    localStorage.setItem('user_tg_id', userData.telegram_id);
+                } else {
+                    localStorage.removeItem('user_tg_id');
+                }
+            }
+        } catch (err) {
+            console.error('Ошибка получения telegram_id:', err);
+        }
+        
+        showApp();
+    } catch (err) {
+        showAuthError('Ошибка соединения: ' + err.message);
+    }
+}
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            hideAuthMessages();
+            
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const username = document.getElementById('regUsername').value.trim();
+            
+            try {
+                const res = await fetch(`${API}/auth/web/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, username })
+                });
+                
+                if (!res.ok) {
+                    const err = await res.json();
+                    showAuthError(err.detail || 'Ошибка регистрации');
+                    return;
+                }
+                
+                const data = await res.json();
+                localStorage.setItem('user_email', email);
+                if (data.user && data.user.telegram_id) {
+                    localStorage.setItem('user_tg_id', data.user.telegram_id);
+                }
+                
+                showAuthSuccess('Регистрация успешна! Входим...');
+                setTimeout(() => showApp(), 1000);
+            } catch (err) {
+                showAuthError('Ошибка соединения: ' + err.message);
+            }
+        }
+
+        function setAuthLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            const subtitles = {
+                ru: 'Геймифицированное AI-обучение для Mechanical, Electrical и Robotics',
+                kk: 'Mechanical, Electrical және Robotics үшін AI-платформа',
+                en: 'Gamified AI Learning for Mechanical, Electrical and Robotics'
+            };
+            document.getElementById('authSubtitle').textContent = subtitles[lang] || subtitles.ru;
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+            
+            const savedEmail = localStorage.getItem('user_email');
+            const savedTgId = localStorage.getItem('user_tg_id');
+            
+            currentUser = {
+                tg_id: savedTgId ? parseInt(savedTgId) : null,
+                email: savedEmail
+            };
+            
+            setLanguage(currentLang);
+            updateProfile();
+            loadQuests();
+            loadLeaderboard();
+            initOnboarding();
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('appContainer').classList.remove('active');
+        }
+
+        // === ОСНОВНЫЕ ФУНКЦИИ ===
         function setLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('lang', lang);
-            document.getElementById('langSelector').value = lang;
+            const selector = document.getElementById('langSelector');
+            if (selector) selector.value = lang;
             
             const t = translations[lang];
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1077,7 +1421,6 @@
 
         function renderOnboardingStep() {
             const step = onboardingSteps[currentOnboardingStep];
-            
             document.getElementById('onboardingStepCounter').textContent = `Step ${currentOnboardingStep + 1} of ${onboardingSteps.length}`;
             document.getElementById('onboardingTitle').textContent = step.title;
             document.getElementById('onboardingText').textContent = step.text;
@@ -1128,8 +1471,10 @@
         }
 
         function confirmLogout() {
+            closeLogoutModal();
             localStorage.clear();
-            window.location.href = 'index.html';
+            currentUser = null;
+            showAuth();
         }
 
         function toggleAIMode() {
@@ -1155,15 +1500,8 @@
             section.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Функция для открытия книг (PDF или онлайн)
         function openBook(url, type) {
-            if (type === 'pdf' || url.endsWith('.pdf')) {
-                // PDF открывается в новой вкладке - браузер сам отобразит PDF
-                window.open(url, '_blank');
-            } else {
-                // Обычная ссылка на сайт
-                window.open(url, '_blank');
-            }
+            window.open(url, '_blank');
         }
 
         function filterBooks(lang) {
@@ -1196,6 +1534,8 @@
         }
 
         async function sendQuery() {
+            if (!currentUser) return alert('Сначала войдите в аккаунт');
+            
             const mode = document.getElementById('ai-mode').value;
             const question = document.getElementById('question').value.trim();
             if (!question) return alert(currentLang === 'ru' ? 'Введите вопрос' : currentLang === 'kk' ? 'Сұрақ енгізіңіз' : 'Enter a question');
@@ -1205,7 +1545,6 @@
             responseDiv.innerHTML = '<p> ' + (currentLang === 'ru' ? 'ИИ думает...' : currentLang === 'kk' ? 'ЖИ ойлануда...' : 'AI is thinking...') + '</p>';
             
             try {
-                // Определяем язык вопроса
                 const questionLang = /[а-яА-ЯЁё]/.test(question) ? 'ru' : 
                                      /[а-қА-ҚәӘіІңҢғҒұҰөӨһҺ]/.test(question) ? 'kk' : 'en';
                 
@@ -1237,46 +1576,72 @@
                     const data = await res.json();
                     responseDiv.innerHTML = `<div style="white-space: pre-wrap;">${data.response}</div>`;
                 }
+                
+                await updateProfile();
             } catch (e) {
                 responseDiv.innerHTML = `<p style="color: var(--error);">Error: ${e.message}</p>`;
             }
         }
 
         async function updateProfile() {
-    if (!currentUser) return;
-    const userId = currentUser.tg_id || currentUser.email;
-    try {
-        const res = await fetch(`${API}/user/${userId}`);
-        if (!res.ok) return;
-        const user = await res.json();
-        
-        document.getElementById('xp-val').textContent = user.xp || 0;
-        document.getElementById('level-val').textContent = user.level || 1;
-        document.getElementById('streak-val').textContent = user.streak || 0;
-        document.getElementById('next-level').textContent = (user.level || 1) + 1;
-        
-        const xpInLevel = (user.xp || 0) % 100;
-        document.getElementById('xp-current').textContent = xpInLevel;
-        document.getElementById('xp-to-next').textContent = 100 - xpInLevel;
-        
-        const progress = (xpInLevel / 100) * 100;
-        document.getElementById('xp-bar').style.width = progress + '%';
-        document.getElementById('xp-bar').textContent = `${xpInLevel} / 100 XP`;
-        
-        try {
-            const questsUserId = currentUser.tg_id || currentUser.email;
-            const questsRes = await fetch(`${API}/quests/completed/${questsUserId}`);
-            if (questsRes.ok) {
-                const questsData = await questsRes.json();
-                const completedCount = questsData.completed ? questsData.completed.length : 0;
-                document.getElementById('quests-val').textContent = completedCount;
+            if (!currentUser) return;
+            
+            try {
+                let user;
+                
+                if (currentUser.tg_id) {
+                    const res = await fetch(`${API}/user/${currentUser.tg_id}`);
+                    if (res.ok) {
+                        user = await res.json();
+                        if (user.telegram_id && !currentUser.tg_id) {
+                            currentUser.tg_id = user.telegram_id;
+                            localStorage.setItem('user_tg_id', user.telegram_id);
+                        }
+                    }
+                }
+                
+                if (!user && currentUser.email) {
+                    const res = await fetch(`${API}/user/by-email/${encodeURIComponent(currentUser.email)}`);
+                    if (res.ok) {
+                        user = await res.json();
+                        if (user.telegram_id) {
+                            currentUser.tg_id = user.telegram_id;
+                            localStorage.setItem('user_tg_id', user.telegram_id);
+                        }
+                    }
+                }
+                
+                if (!user) return;
+                
+                document.getElementById('xp-val').textContent = user.xp || 0;
+                document.getElementById('level-val').textContent = user.level || 1;
+                document.getElementById('streak-val').textContent = user.streak || 0;
+                document.getElementById('next-level').textContent = (user.level || 1) + 1;
+                
+                const xpInLevel = (user.xp || 0) % 100;
+                document.getElementById('xp-current').textContent = xpInLevel;
+                document.getElementById('xp-to-next').textContent = 100 - xpInLevel;
+                
+                const progress = (xpInLevel / 100) * 100;
+                document.getElementById('xp-bar').style.width = progress + '%';
+                document.getElementById('xp-bar').textContent = `${xpInLevel} / 100 XP`;
+                
+                try {
+                    const questsUserId = currentUser.tg_id || currentUser.email;
+                    const questsRes = await fetch(`${API}/quests/completed/${questsUserId}`);
+                    if (questsRes.ok) {
+                        const questsData = await questsRes.json();
+                        const completedCount = questsData.completed ? questsData.completed.length : 0;
+                        document.getElementById('quests-val').textContent = completedCount;
+                    }
+                } catch (e) {
+                    console.error('Quests count error:', e);
+                    document.getElementById('quests-val').textContent = '0';
+                }
+            } catch (e) { 
+                console.error('Profile error:', e); 
             }
-        } catch (e) {
-            console.error('Quests count error:', e);
-            document.getElementById('quests-val').textContent = '0';
         }
-    } catch (e) { console.error('Profile error:', e); }
-}
 
         async function loadQuests() {
             if (!currentUser) return;
@@ -1308,7 +1673,7 @@
                         </div>
                         ${!isCompleted 
                             ? `<button onclick="completeQuest('${quest.id}')" style="width: 100%;">${currentLang === 'ru' ? 'Проверить выполнение' : currentLang === 'kk' ? 'Орындалуын тексеру' : 'Check Completion'}</button>` 
-                            : `<p style="color: var(--success); font-weight: 600; margin-top: 1rem;">${currentLang === 'ru' ? 'Выполнено' : currentLang === 'kk' ? 'Орындалды' : 'Completed'}</p>`}
+                            : `<p style="color: var(--success); font-weight: 600; margin-top: 1rem;">${currentLang === 'ru' ? '✅ Выполнено' : currentLang === 'kk' ? '✅ Орындалды' : '✅ Completed'}</p>`}
                     `;
                     list.appendChild(card);
                 }
@@ -1316,18 +1681,26 @@
         }
 
         async function completeQuest(questId) {
-            if (!currentUser || !currentUser.tg_id) return;
+            if (!currentUser || !currentUser.tg_id) {
+                alert(' Сначала привяжи Telegram-аккаунт!\n\nНапиши боту: /bind email пароль');
+                return;
+            }
+            
             try {
                 const res = await fetch(`${API}/quests/complete`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ telegram_id: currentUser.tg_id, quest_id: questId })
+                    body: JSON.stringify({ 
+                        telegram_id: currentUser.tg_id, 
+                        quest_id: questId 
+                    })
                 });
                 const data = await res.json();
+                
                 if (data.status === 'ok') {
                     showNotification(data.message);
-                    updateProfile();
-                    loadQuests();
+                    await updateProfile();
+                    await loadQuests();
                 } else {
                     alert(data.message);
                 }
@@ -1381,25 +1754,23 @@
             setTimeout(() => notif.remove(), 3000);
         }
 
+        // === ЗАПУСК ===
         window.addEventListener('DOMContentLoaded', () => {
             const savedEmail = localStorage.getItem('user_email');
             const savedTgId = localStorage.getItem('user_tg_id');
             
-            if (!savedEmail && !savedTgId) {
-                window.location.href = 'index.html';
-                return;
+            // Устанавливаем язык в селектор на странице входа
+            const authLangSelector = document.getElementById('authLangSelector');
+            if (authLangSelector) authLangSelector.value = currentLang;
+            setAuthLanguage(currentLang);
+            
+            if (savedEmail || savedTgId) {
+                // Пользователь уже вошёл — показываем приложение
+                showApp();
+            } else {
+                // Показываем форму входа
+                showAuth();
             }
-            
-            currentUser = {
-                tg_id: savedTgId ? parseInt(savedTgId) : null,
-                email: savedEmail
-            };
-            
-            setLanguage(currentLang);
-            updateProfile();
-            loadQuests();
-            loadLeaderboard();
-            initOnboarding();
         });
     </script>
 </body>

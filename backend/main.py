@@ -442,20 +442,72 @@ async def web_login(req: WebLoginRequest):
 @app.post("/api/auth/bind")
 async def bind_account(req: BindRequest):
     """Привязать Telegram к веб-аккаунту (с авто-регистрацией)"""
-    # Сначала пробуем найти существующего пользователя
-    user = await database.authenticate_user(req.email, req.password)
+    logger.info(f" BIND запрос: email={req.email}, tg_id={req.telegram_id}")
     
-    if not user:
-        # Если не найден — пробуем зарегистрировать
-        user = await database.register_user(req.email, req.password)
-        if not user:
-            raise HTTPException(401, "Неверный email или пароль (регистрация не удалась)")
+    # 1. Сначала ищем пользователя по telegram_id
+    existing_user = await database.get_user(req.telegram_id)
+    logger.info(f" existing_user по telegram_id: {existing_user is not None}")
     
-    # Проверяем, не привязан ли уже этот email к другому Telegram
-    if user.get("telegram_id") and user["telegram_id"] != req.telegram_id:
-        raise HTTPException(400, "Этот email уже привязан к другому Telegram-аккаунту")
+    if existing_user:
+        # Пользователь уже существует (создан через бота)
+        if existing_user.get("email"):
+            logger.info(f" У пользователя уже есть email: {existing_user['email']}")
+            if existing_user["email"] == req.email:
+                # Обновляем пароль
+                password_hash = __import__('hashlib').sha256(req.password.encode()).hexdigest()
+                async with database.get_db() as db:
+                    await db.execute(
+                        "UPDATE users SET password_hash = ? WHERE telegram_id = ?",
+                        (password_hash, req.telegram_id)
+                    )
+                    await db.commit()
+                logger.info(f" Пароль обновлён")
+                return {"status": "ok", "message": " Аккаунт привязан (пароль обновлён)"}
+            else:
+                logger.error(f" Email уже привязан: {existing_user['email']}")
+                raise HTTPException(400, f"Этот Telegram уже привязан к email: {existing_user['email']}")
+        
+        # Добавляем email и пароль
+        password_hash = __import__('hashlib').sha256(req.password.encode()).hexdigest()
+        async with database.get_db() as db:
+            await db.execute(
+                "UPDATE users SET email = ?, password_hash = ? WHERE telegram_id = ?",
+                (req.email, password_hash, req.telegram_id)
+            )
+            await db.commit()
+        logger.info(f" Email и пароль добавлены к существующему пользователю")
+        return {"status": "ok", "message": " Аккаунт привязан"}
     
-    # Привязываем Telegram к аккаунту
+    # 2. Если пользователь НЕ существует по telegram_id
+    # Ищем по email
+    user_by_email = await database.authenticate_user(req.email, req.password)
+    logger.info(f" user_by_email: {user_by_email is not None}")
+    
+    if user_by_email:
+        # Нашли по email - привязываем telegram_id
+        if user_by_email.get("telegram_id") and user_by_email["telegram_id"] != req.telegram_id:
+            logger.error(f" Email уже привязан к другому TG: {user_by_email['telegram_id']}")
+            raise HTTPException(400, "Этот email уже привязан к другому Telegram-аккаунту")
+        
+        async with database.get_db() as db:
+            await db.execute(
+                "UPDATE users SET telegram_id = ? WHERE email = ?",
+                (req.telegram_id, req.email)
+            )
+            await db.commit()
+        logger.info(f" Telegram привязан к существующему email-аккаунту")
+        return {"status": "ok", "message": " Аккаунт привязан"}
+    
+    # 3. Если вообще ничего не нашли - создаём нового
+    logger.info(f" Создаём нового пользователя...")
+    new_user = await database.register_user(req.email, req.password)
+    logger.info(f" register_user вернул: {new_user is not None}")
+    
+    if not new_user:
+        logger.error(f" Регистрация не удалась")
+        raise HTTPException(401, "Не удалось создать аккаунт")
+    
+    # Привязываем telegram_id
     async with database.get_db() as db:
         await db.execute(
             "UPDATE users SET telegram_id = ? WHERE email = ?",
@@ -463,7 +515,8 @@ async def bind_account(req: BindRequest):
         )
         await db.commit()
     
-    return {"status": "ok", "message": " Аккаунт привязан"}
+    logger.info(f" Создан новый аккаунт и привязан к Telegram")
+    return {"status": "ok", "message": " Аккаунт создан и привязан"}
 
 @app.post("/api/auth/unbind")
 async def unbind_account(req: UnbindRequest):
@@ -532,7 +585,7 @@ async def complete_quest(req: QuestCompleteRequest):
     await database.complete_quest(req.telegram_id, req.quest_id)
     await database.add_xp(req.telegram_id, quest["xp"])
     
-    #  ЭТА СТРОКА ДОЛЖНА БЫТЬ!
+    #  ОБНОВЛЯЕМ СТРИК при выполнении квеста!
     await database.update_streak(req.telegram_id)
     
     updated_user = await database.get_user(req.telegram_id)
@@ -554,14 +607,30 @@ async def get_completed_quests(tg_id: int):
     return {"completed": [c[0] for c in completed]}
 
 # === API: ПРОФИЛЬ ===
-@app.get("/api/user/{tg_id}")
-async def get_user_profile(tg_id: int):
-    user = await database.get_user(tg_id)
-    if not user:
-        # Создаём пользователя если нет
-        user = await database.get_or_create_user(tg_id, "")
+@app.get("/api/user/by-email/{email}")
+async def get_user_by_email(email: str):
+    """Получить профиль пользователя по email"""
+    logger.info(f" Поиск пользователя по email: {email}")
     
-    # Возвращаем безопасные значения
+    async with database.get_db() as db:
+        # Сначала ищем точное совпадение
+        cur = await db.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = await cur.fetchone()
+        
+        if not row:
+            # Если не нашли — ищем по telegram_id (если email был сохранён как telegram_id)
+            logger.warning(f" Пользователь с email={email} не найден")
+            
+            # Показываем всех пользователей для отладки
+            cur = await db.execute("SELECT telegram_id, email, username FROM users")
+            all_users = await cur.fetchall()
+            logger.info(f" Все пользователи в БД: {all_users}")
+            
+            raise HTTPException(404, "Пользователь не найден. Сначала привяжи аккаунт через бота: /bind email пароль")
+        
+        user = database._row_to_dict(row)
+        logger.info(f" Пользователь найден: id={user.get('id')}, tg_id={user.get('telegram_id')}")
+    
     return {
         "id": user.get("id"),
         "telegram_id": user.get("telegram_id"),
