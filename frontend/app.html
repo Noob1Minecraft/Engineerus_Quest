@@ -946,10 +946,6 @@
             <div id="instructions-tab" class="tab-content">
     <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="instructions_title">Как пользоваться</h2>
     
-    <!-- === НОВЫЙ БЛОК: СИНХРОНИЗАЦИЯ === -->
-    <div id="instructions-tab" class="tab-content">
-    <h2 style="font-size: 2rem; margin-bottom: 1.5rem;" data-i18n="instructions_title">Как пользоваться</h2>
-    
     <!-- === БАННЕР СИНХРОНИЗАЦИИ === -->
     <div class="card" style="border-left: 4px solid var(--warning); background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);">
         <h3 style="margin-bottom: 1rem; color: var(--warning); display: flex; align-items: center; gap: 0.5rem;">
@@ -1013,6 +1009,68 @@
     </div>
 
     <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">🤖 Команды Telegram-бота</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/start</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Начать работу с ботом</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/bind email пароль</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Привязать аккаунт</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/profile</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Краткая статистика</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/stats</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Полная статистика</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/daily</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Ежедневный квест</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/achievements</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Список ачивок</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/whoami</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Проверить привязку</p>
+            </div>
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                <code style="color: var(--primary); font-weight: 700;">/lang</code>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Сменить язык</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="gamification">Геймификация</h3>
+        <ul style="line-height: 2; padding-left: 1.5rem;">
+            <li><strong data-i18n="xp_points">XP очки</strong> — <span data-i18n="xp_points_desc">Зарабатывайте опыт за каждое выполненное задание</span></li>
+            <li><strong data-i18n="levels">Уровни</strong> — <span data-i18n="levels_desc">Повышайте уровень каждые 100 XP</span></li>
+            <li><strong data-i18n="streak">Серия</strong> — <span data-i18n="streak_desc">Поддерживайте ежедневную активность</span></li>
+            <li><strong data-i18n="leaderboard">Таблица лидеров</strong> — <span data-i18n="leaderboard_desc">Соревнуйтесь с другими студентами</span></li>
+        </ul>
+    </div>
+</div>
+
+    <!-- Остальные блоки -->
+    <div class="card">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);" data-i18n="getting_started">Начало работы</h3>
+        <ol style="line-height: 2; padding-left: 1.5rem;">
+            <li><strong>Привяжи Telegram-бот</strong> — команда <code>/bind</code> в боте</li>
+            <li><strong>Войди на сайт</strong> — используй тот же email и пароль</li>
+            <li><strong>Выполняй квесты</strong> — получай XP и повышай уровень</li>
+            <li><strong>Используй ИИ-помощник</strong> — задавай вопросы по инженерии</li>
+            <li><strong>Изучай книги</strong> — доступ к подборке по Mechanical, Electrical и Robotics</li>
+            <li><strong>Поддерживай стрик</strong> — заходи каждый день!</li>
+        </ol>
+    </div>
+
+    <div class="card">
         <h3 style="margin-bottom: 1rem; color: var(--primary);"> Команды Telegram-бота</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
             <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
@@ -1059,7 +1117,7 @@
             <li><strong data-i18n="leaderboard">Таблица лидеров</strong> — <span data-i18n="leaderboard_desc">Соревнуйтесь с другими студентами</span></li>
         </ul>
     </div>
-</div>G
+</div>
 
     <script>
         const API = '/api';
